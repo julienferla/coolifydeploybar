@@ -1,0 +1,19 @@
+.DS_Store
+.build/
+.swiftpm/
+*.xcodeproj
+xcuserdata/
+DerivedData/
+
+# Release artifacts (Makefile / scripts/make-dmg.sh)
+dist/
+build/
+
+# Editors & tooling
+.idea/
+*.swp
+*.swo
+*~
+.env
+.env.*
+!.env.example
