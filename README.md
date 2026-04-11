@@ -1,6 +1,8 @@
 # CoolifyDeployBar
 
 [![GitHub — repository](https://img.shields.io/badge/GitHub-repository-181717?style=flat&logo=github)](https://github.com/julienferla/coolifydeploybar)
+[![GitHub Releases](https://img.shields.io/github/v/release/julienferla/coolifydeploybar?logo=github&label=Releases&color=blue)](https://github.com/julienferla/coolifydeploybar/releases)
+[![Latest DMG](https://img.shields.io/badge/Download-latest%20DMG-181717?style=flat&logo=apple)](https://github.com/julienferla/coolifydeploybar/releases/latest)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-🍺_Buy_me_a_beer-EA4AAA?style=flat&logo=github-sponsors)](https://github.com/sponsors/julienferla)
 
 > macOS menu bar companion for [Coolify](https://coolify.io): watch deployment queue and open your Coolify dashboard with a Bearer token.
@@ -45,6 +47,8 @@ Then run with **⌘R**.
 API reference: [Coolify API](https://coolify.io/docs/api-reference/authorization).
 
 ## Releases (DMG)
+
+**Télécharger l’app :** [toutes les releases](https://github.com/julienferla/coolifydeploybar/releases) · [dernière release (DMG)](https://github.com/julienferla/coolifydeploybar/releases/latest)
 
 Maintainers:
 
