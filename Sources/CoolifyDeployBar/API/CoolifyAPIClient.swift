@@ -158,4 +158,25 @@ struct CoolifyAPIClient: Sendable {
         let count = max(page.count, sorted.count)
         return ApplicationDeploymentsPage(count: count, deployments: sorted)
     }
+
+    /// Détail application pour résoudre `project_uuid` / `environment_uuid` (chemins web Coolify).
+    func fetchApplicationRouting(uuid: String) async throws -> ApplicationRoutingDetail {
+        let trimmed = uuid.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            throw CoolifyAPIError.invalidResponse(statusCode: 400, body: "UUID application vide")
+        }
+        let (data, _) = try await request(path: "applications/\(trimmed)")
+        let decoder = JSONDecoder()
+        struct Wrapped: Decodable {
+            let data: ApplicationRoutingDetail
+        }
+        if let wrapped = try? decoder.decode(Wrapped.self, from: data) {
+            return wrapped.data
+        }
+        do {
+            return try decoder.decode(ApplicationRoutingDetail.self, from: data)
+        } catch {
+            throw CoolifyAPIError.decoding(error)
+        }
+    }
 }

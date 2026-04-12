@@ -3,6 +3,26 @@ import UserNotifications
 
 /// Notifications système quand un déploiement se termine (succès / échec).
 enum DeployNotificationService {
+    /// Clé `userInfo` pour l’URL à ouvrir dans le navigateur (Coolify UI).
+    static let userInfoURLKey = "coolifyURL"
+    static let categoryDeploymentFinished = "COOLIFY_DEPLOY_FINISHED"
+    static let actionOpenCoolify = "OPEN_COOLIFY"
+
+    static func registerNotificationCategories() {
+        let open = UNNotificationAction(
+            identifier: actionOpenCoolify,
+            title: "Ouvrir dans Coolify",
+            options: [.foreground]
+        )
+        let cat = UNNotificationCategory(
+            identifier: categoryDeploymentFinished,
+            actions: [open],
+            intentIdentifiers: [],
+            options: []
+        )
+        UNUserNotificationCenter.current().setNotificationCategories([cat])
+    }
+
     static func ensureAuthorization() async {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
@@ -15,14 +35,16 @@ enum DeployNotificationService {
         from oldVisual: MenuBarDeploymentVisual,
         to newVisual: MenuBarDeploymentVisual,
         completedItem: DeploymentQueueItem?,
-        notifyEnabled: Bool
-    ) {
+        notifyEnabled: Bool,
+        openURL: URL?
+    ) async {
         guard notifyEnabled else { return }
         guard oldVisual == .deploying else { return }
         guard newVisual == .success || newVisual == .failure else { return }
 
         let content = UNMutableNotificationContent()
         content.sound = .default
+        content.categoryIdentifier = categoryDeploymentFinished
 
         let appName = completedItem?.application_name?.trimmingCharacters(in: .whitespacesAndNewlines)
         let titleApp = (appName?.isEmpty == false) ? appName! : "Coolify Deploy Bar"
@@ -37,9 +59,17 @@ enum DeployNotificationService {
             content.body = bodyLine(for: completedItem, success: false)
         }
 
+        if let openURL {
+            content.userInfo = [userInfoURLKey: openURL.absoluteString]
+        }
+
         let id = "deploy-finished-\(completedItem?.deployment_uuid ?? UUID().uuidString)"
         let request = UNNotificationRequest(identifier: id, content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(request)
+        do {
+            try await UNUserNotificationCenter.current().add(request)
+        } catch {
+            // Échec silencieux : l’utilisateur garde l’icône barre de menus.
+        }
     }
 
     private static func bodyLine(for item: DeploymentQueueItem?, success: Bool) -> String {

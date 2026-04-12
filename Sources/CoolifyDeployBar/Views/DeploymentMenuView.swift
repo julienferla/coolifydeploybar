@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct DeploymentMenuView: View {
@@ -231,6 +232,41 @@ struct DeploymentMenuView: View {
     }
 
     @MainActor
+    private func openCoolifyInBrowser(item: DeploymentQueueItem) {
+        Task { @MainActor in
+            guard settings.isConfigured else { return }
+            let client = CoolifyAPIClient(baseURL: settings.baseURL, token: settings.apiToken)
+            let id = settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines)
+            let url = await CoolifyDeploymentURLResolver.resolveAsync(
+                client: client,
+                item: item,
+                selectedApplicationUUID: id
+            )
+            guard let url else { return }
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    /// Lien explicite vers Coolify (libellé + icône, zone de clic large).
+    @ViewBuilder
+    private func coolifyOpenControl(for item: DeploymentQueueItem) -> some View {
+        if settings.isConfigured {
+            Button {
+                openCoolifyInBrowser(item: item)
+            } label: {
+                Label("Ouvrir dans Coolify", systemImage: "safari")
+                    .font(.caption.weight(.semibold))
+                    .labelStyle(.titleAndIcon)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.link)
+            .padding(.vertical, 4)
+            .padding(.horizontal, 2)
+            .contentShape(Rectangle())
+            .help("Ouvre la page du déploiement ou de l’application dans Coolify")
+        }
+    }
+
     private func loadApplicationsForMenu() async {
         guard settings.isConfigured else {
             menuApplications = []
@@ -318,7 +354,7 @@ struct DeploymentMenuView: View {
                     .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
             }
-            HStack {
+            HStack(alignment: .center) {
                 if let c = item.commit, !c.isEmpty {
                     Text(String(c.prefix(7)))
                         .font(.callout.monospaced().weight(.medium))
@@ -332,6 +368,8 @@ struct DeploymentMenuView: View {
                     .background(accent.opacity(0.15))
                     .clipShape(Capsule())
             }
+            coolifyOpenControl(for: item)
+                .frame(maxWidth: .infinity, alignment: .leading)
             if let msg = item.commit_message, !msg.isEmpty {
                 Text(msg)
                     .font(.subheadline)
@@ -369,6 +407,8 @@ struct DeploymentMenuView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            coolifyOpenControl(for: item)
+                .frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: 6) {
                 if let c = item.commit, !c.isEmpty {
                     Text(String(c.prefix(7)))

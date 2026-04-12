@@ -128,12 +128,31 @@ final class DeploymentMonitor: ObservableObject {
         }
 
         menuBarVisual = newVisual
-        DeployNotificationService.postCompletionIfNeeded(
-            from: previous,
-            to: newVisual,
-            completedItem: completedItem,
-            notifyEnabled: settings.notifyOnDeploymentComplete
-        )
+
+        let notifyEnabled = settings.notifyOnDeploymentComplete
+        let shouldNotify = notifyEnabled
+            && previous == .deploying
+            && (newVisual == .success || newVisual == .failure)
+        if shouldNotify, let item = completedItem {
+            let baseURL = settings.baseURL
+            let token = settings.apiToken
+            let appUUID = settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines)
+            Task { @MainActor in
+                let client = CoolifyAPIClient(baseURL: baseURL, token: token)
+                let url = await CoolifyDeploymentURLResolver.resolveAsync(
+                    client: client,
+                    item: item,
+                    selectedApplicationUUID: appUUID
+                )
+                await DeployNotificationService.postCompletionIfNeeded(
+                    from: previous,
+                    to: newVisual,
+                    completedItem: item,
+                    notifyEnabled: notifyEnabled,
+                    openURL: url
+                )
+            }
+        }
     }
 
     /// File affichée : endpoint global `/deployments` + entrées **en cours** présentes seulement dans l’historique app (ex. `running:starting`).

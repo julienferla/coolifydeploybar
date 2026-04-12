@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct CoolifyDeployBarApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var settings = AppSettings()
     @StateObject private var monitor = DeploymentMonitor()
 
