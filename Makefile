@@ -12,4 +12,7 @@ clean:
 	swift package clean
 
 open:
-	xed .
+	xed CoolifyDeployBar.xcodeproj
+
+open-package:
+	xed Package.swift

@@ -6,16 +6,14 @@ struct CoolifyDeployBarApp: App {
     @StateObject private var monitor = DeploymentMonitor()
 
     var body: some Scene {
-        MenuBarExtra("Coolify", systemImage: "arrow.triangle.branch") {
+        MenuBarExtra {
             DeploymentMenuView()
                 .environmentObject(settings)
                 .environmentObject(monitor)
+        } label: {
+            MenuBarIconView(state: monitor.menuBarVisual)
+                .accessibilityLabel("Coolify Deploy Bar")
         }
         .menuBarExtraStyle(.window)
-
-        Settings {
-            SettingsView()
-                .environmentObject(settings)
-        }
     }
 }

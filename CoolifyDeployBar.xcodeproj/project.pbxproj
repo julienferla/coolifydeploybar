@@ -1,0 +1,382 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3176B99979788737CCA7FCB9 /* CoolifyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E65D30637663E7E2E717D8 /* CoolifyAPIClient.swift */; };
+		37C1581321E3B9BA45FE3A22 /* GitHubReleaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3A45D1A38776528DFAB563 /* GitHubReleaseService.swift */; };
+		3E7646D7277D8DA4C5BFD508 /* MenuBarIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1EE399D53A6E2807F236427 /* MenuBarIconView.swift */; };
+		43F4D69621B6BE773B504C6F /* DeploymentMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2872EABA79766FB5595136F5 /* DeploymentMenuView.swift */; };
+		4FDF028268A93B95723D1062 /* CoolifyDeployBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27D82537334FA1C141D6C4E /* CoolifyDeployBarApp.swift */; };
+		5A9CC9DA81AD688E4E592D4A /* CoolifyAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D0324502215E49A789656A /* CoolifyAPIError.swift */; };
+		6406E4376E3558497373A42E /* DeploymentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C1E09BB88F35FDF6A0E22F /* DeploymentModels.swift */; };
+		73D97440DE32293A420DFCD4 /* ApplicationSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F98A00B1B31E79433DC0D3D /* ApplicationSummary.swift */; };
+		A631E09F428F3C962324C6A4 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF6BD7B54F794176C6FD385 /* SettingsView.swift */; };
+		A95AB227491763D1F4B42D9C /* DeploymentMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3828B3013EE3C2CCFB50778 /* DeploymentMonitor.swift */; };
+		D925C006FF8C95C269CA4D6F /* SettingsWindowPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A376111EADBB45B70F85419B /* SettingsWindowPresenter.swift */; };
+		DD89AAD0E4181B1BF94E94BF /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B31C801CED175B6ACE2EF34C /* AppSettings.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2872EABA79766FB5595136F5 /* DeploymentMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentMenuView.swift; sourceTree = "<group>"; };
+		80E65D30637663E7E2E717D8 /* CoolifyAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolifyAPIClient.swift; sourceTree = "<group>"; };
+		9A3A45D1A38776528DFAB563 /* GitHubReleaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubReleaseService.swift; sourceTree = "<group>"; };
+		9C0B51CBCC2882D08C865BF6 /* CoolifyDeployBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoolifyDeployBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F98A00B1B31E79433DC0D3D /* ApplicationSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSummary.swift; sourceTree = "<group>"; };
+		A376111EADBB45B70F85419B /* SettingsWindowPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowPresenter.swift; sourceTree = "<group>"; };
+		A3828B3013EE3C2CCFB50778 /* DeploymentMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentMonitor.swift; sourceTree = "<group>"; };
+		B31C801CED175B6ACE2EF34C /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		B8D0324502215E49A789656A /* CoolifyAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolifyAPIError.swift; sourceTree = "<group>"; };
+		C27D82537334FA1C141D6C4E /* CoolifyDeployBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolifyDeployBarApp.swift; sourceTree = "<group>"; };
+		D2C1E09BB88F35FDF6A0E22F /* DeploymentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentModels.swift; sourceTree = "<group>"; };
+		DAF6BD7B54F794176C6FD385 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F1EE399D53A6E2807F236427 /* MenuBarIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		24010C2393E86B3CF9F8E62E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9F98A00B1B31E79433DC0D3D /* ApplicationSummary.swift */,
+				D2C1E09BB88F35FDF6A0E22F /* DeploymentModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		2A1E18254FC0627B0900B54C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9C0B51CBCC2882D08C865BF6 /* CoolifyDeployBar.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4FEEE8BBABA0D69BBF6FDDA2 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				80E65D30637663E7E2E717D8 /* CoolifyAPIClient.swift */,
+				B8D0324502215E49A789656A /* CoolifyAPIError.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		5793262304B3A1931398CE2C /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				F57F343A1349C0DE0E580500 /* CoolifyDeployBar */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		8D6DC5A11941912327E832FA /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A3828B3013EE3C2CCFB50778 /* DeploymentMonitor.swift */,
+				9A3A45D1A38776528DFAB563 /* GitHubReleaseService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		9F7ABE7B86EA5F030EA6A118 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2872EABA79766FB5595136F5 /* DeploymentMenuView.swift */,
+				F1EE399D53A6E2807F236427 /* MenuBarIconView.swift */,
+				DAF6BD7B54F794176C6FD385 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B34B8F66B26414B2EC755E47 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				B31C801CED175B6ACE2EF34C /* AppSettings.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		F57F343A1349C0DE0E580500 /* CoolifyDeployBar */ = {
+			isa = PBXGroup;
+			children = (
+				C27D82537334FA1C141D6C4E /* CoolifyDeployBarApp.swift */,
+				A376111EADBB45B70F85419B /* SettingsWindowPresenter.swift */,
+				4FEEE8BBABA0D69BBF6FDDA2 /* API */,
+				24010C2393E86B3CF9F8E62E /* Models */,
+				8D6DC5A11941912327E832FA /* Services */,
+				B34B8F66B26414B2EC755E47 /* Settings */,
+				9F7ABE7B86EA5F030EA6A118 /* Views */,
+			);
+			path = CoolifyDeployBar;
+			sourceTree = "<group>";
+		};
+		FCF38EEB44F2FDEE8E3BBB14 = {
+			isa = PBXGroup;
+			children = (
+				5793262304B3A1931398CE2C /* Sources */,
+				2A1E18254FC0627B0900B54C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F26EF3251EFD025DC567534E /* CoolifyDeployBar */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DB28C06DDAF68FFE02869C26 /* Build configuration list for PBXNativeTarget "CoolifyDeployBar" */;
+			buildPhases = (
+				08F3CC181D57F63BD12255A8 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CoolifyDeployBar;
+			packageProductDependencies = (
+			);
+			productName = CoolifyDeployBar;
+			productReference = 9C0B51CBCC2882D08C865BF6 /* CoolifyDeployBar.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		363B431B2181B38D19528F84 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = ADF3ACDD08780EB674C3DF1B /* Build configuration list for PBXProject "CoolifyDeployBar" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = FCF38EEB44F2FDEE8E3BBB14;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2A1E18254FC0627B0900B54C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F26EF3251EFD025DC567534E /* CoolifyDeployBar */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		08F3CC181D57F63BD12255A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD89AAD0E4181B1BF94E94BF /* AppSettings.swift in Sources */,
+				73D97440DE32293A420DFCD4 /* ApplicationSummary.swift in Sources */,
+				3176B99979788737CCA7FCB9 /* CoolifyAPIClient.swift in Sources */,
+				5A9CC9DA81AD688E4E592D4A /* CoolifyAPIError.swift in Sources */,
+				4FDF028268A93B95723D1062 /* CoolifyDeployBarApp.swift in Sources */,
+				43F4D69621B6BE773B504C6F /* DeploymentMenuView.swift in Sources */,
+				6406E4376E3558497373A42E /* DeploymentModels.swift in Sources */,
+				A95AB227491763D1F4B42D9C /* DeploymentMonitor.swift in Sources */,
+				37C1581321E3B9BA45FE3A22 /* GitHubReleaseService.swift in Sources */,
+				3E7646D7277D8DA4C5BFD508 /* MenuBarIconView.swift in Sources */,
+				A631E09F428F3C962324C6A4 /* SettingsView.swift in Sources */,
+				D925C006FF8C95C269CA4D6F /* SettingsWindowPresenter.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		301E2B18232EF516CD4032B0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Packaging/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.julienferla.CoolifyDeployBar;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		34D573A828DBC82EDEE1B41E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Packaging/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.julienferla.CoolifyDeployBar;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		6D6DEBC3EB25F322D7572153 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		95453DFE571DDA3B9B491FC0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		ADF3ACDD08780EB674C3DF1B /* Build configuration list for PBXProject "CoolifyDeployBar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D6DEBC3EB25F322D7572153 /* Debug */,
+				95453DFE571DDA3B9B491FC0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DB28C06DDAF68FFE02869C26 /* Build configuration list for PBXNativeTarget "CoolifyDeployBar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				301E2B18232EF516CD4032B0 /* Debug */,
+				34D573A828DBC82EDEE1B41E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 363B431B2181B38D19528F84 /* Project object */;
+}

@@ -7,7 +7,7 @@
 
 > macOS menu bar companion for [Coolify](https://coolify.io): watch deployment queue and open your Coolify dashboard with a Bearer token.
 
-![macOS 13+](https://img.shields.io/badge/macOS-13%2B-blue) ![Swift 5.9](https://img.shields.io/badge/Swift-5.9-orange) ![License MIT](https://img.shields.io/badge/license-MIT-green)
+![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue) ![Swift 5.9](https://img.shields.io/badge/Swift-5.9-orange) ![License MIT](https://img.shields.io/badge/license-MIT-green)
 
 ## Features
 
@@ -17,7 +17,7 @@
 
 ## Requirements
 
-- macOS 13 (Ventura) or later
+- macOS 14 (Sonoma) or later
 - Xcode 15+ or Swift 5.9 toolchain (for local builds)
 - A Coolify instance with a **personal access token** (Bearer) and API v1 enabled
 
@@ -30,13 +30,39 @@ swift build
 swift run CoolifyDeployBar
 ```
 
-Open the project in Xcode:
+### Où est l’app après un build ?
+
+| Comment tu buildes | Emplacement |
+| --- | --- |
+| **Xcode** (⌘B / ⌘R) | Dans le **DerivedData** de Xcode : `~/Library/Developer/Xcode/DerivedData/CoolifyDeployBar-*/Build/Products/Debug/CoolifyDeployBar.app` (ou **Release** si tu as changé le schéma). Dans Xcode : menu **Product → Show Build Folder in Finder** pour ouvrir le dossier du produit. |
+| **`swift build -c release`** | Pas de `.app` : exécutable seulement, chemin affiché par `swift build -c release --show-bin-path` → en général **`.build/arm64-apple-macosx/release/CoolifyDeployBar`**. |
+| **`make dmg`** | Le script assemble un `.app` temporaire sous **`build/dmg_stage/`** et le DMG final dans **`dist/CoolifyDeployBar-<version>.dmg`**. |
+
+### Xcode (recommandé — même flux qu’une app macOS classique)
+
+Ouvre le projet généré **CoolifyDeployBar.xcodeproj** (cible Application macOS, `Packaging/Info.plist`, signature automatique possible avec ton équipe) :
 
 ```bash
-xed .
+make open
+# ou : xed CoolifyDeployBar.xcodeproj
 ```
 
-Then run with **⌘R**.
+Puis **⌘R**. Dans **Signing & Capabilities**, choisis ton **Team** pour un binaire signé (évite les blocages Gatekeeper par rapport au seul exécutable SPM).
+
+Le fichier **`project.yml`** sert de source de vérité pour [XcodeGen](https://github.com/yonaskolb/XcodeGen). Pour régénérer le `.xcodeproj` après modification des dossiers ou des réglages :
+
+```bash
+brew install xcodegen   # une fois
+xcodegen generate
+```
+
+### Swift Package (sans Xcode)
+
+```bash
+xed Package.swift
+```
+
+Puis run avec **⌘R** sur le package (exécutable `CoolifyDeployBar`).
 
 ### Configuration
 
@@ -66,6 +92,8 @@ make dmg
 ## Project layout
 
 ```
+CoolifyDeployBar.xcodeproj/    # App macOS (XcodeGen → project.yml)
+project.yml                    # Définition XcodeGen (cible, Info.plist, déploiement)
 Sources/CoolifyDeployBar/
 ├── CoolifyDeployBarApp.swift   # @main, MenuBarExtra + Settings
 ├── API/

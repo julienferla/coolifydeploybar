@@ -4,6 +4,16 @@ struct CoolifyAPIClient: Sendable {
     var baseURL: String
     var token: String
 
+    /// Jeton tel qu’attendu par Coolify (sans préfixe `Bearer`, espaces retirés).
+    private func normalizedAPIToken() -> String {
+        var t = token.trimmingCharacters(in: .whitespacesAndNewlines)
+        let bearerPrefix = "bearer "
+        if t.lowercased().hasPrefix(bearerPrefix) {
+            t = String(t.dropFirst(bearerPrefix.count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return t
+    }
+
     private func normalizedAPIRoot() throws -> URL {
         var trimmed = baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw CoolifyAPIError.invalidBaseURL }
@@ -44,7 +54,8 @@ struct CoolifyAPIClient: Sendable {
 
         var req = URLRequest(url: url)
         req.httpMethod = "GET"
-        req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        let authToken = normalizedAPIToken()
+        req.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
         req.setValue("application/json", forHTTPHeaderField: "Accept")
 
         do {
@@ -84,7 +95,8 @@ struct CoolifyAPIClient: Sendable {
         }
     }
 
-    /// Historique pour une application : `{ count, deployments }`.
+    /// Historique pour une application : `{ count, deployments }`, parfois sous `data` (Laravel / ressources API),
+    /// parfois un tableau de lignes file d’attente, ou (ancien) un tableau d’objets Application.
     func fetchApplicationDeployments(applicationUUID: String, skip: Int = 0, take: Int = 15) async throws
         -> ApplicationDeploymentsPage
     {
@@ -95,10 +107,55 @@ struct CoolifyAPIClient: Sendable {
                 URLQueryItem(name: "take", value: String(take)),
             ]
         )
+        let decoder = JSONDecoder()
+
+        // 1) `{ "data": { "count", "deployments" } }` — si on décodait d’abord la page à la racine, les clés
+        //    manquantes donneraient `deployments: []` et `count: 0` sans erreur (succès silencieux vide).
+        struct DeploymentsPageInData: Decodable {
+            let data: ApplicationDeploymentsPage
+        }
+        if let wrapped = try? decoder.decode(DeploymentsPageInData.self, from: data) {
+            return Self.normalizedDeploymentsPage(wrapped.data)
+        }
+
+        // 2) `{ "data": [ … ], "meta": { "total": … } }` (pagination Laravel)
+        struct DeploymentsMeta: Decodable {
+            let total: Int?
+        }
+        struct DeploymentsArrayInData: Decodable {
+            let data: [DeploymentQueueItem]
+            let meta: DeploymentsMeta?
+        }
+        if let wrapped = try? decoder.decode(DeploymentsArrayInData.self, from: data) {
+            let sorted = wrapped.data.sortedByDeploymentDateDescending()
+            let total = wrapped.meta?.total ?? sorted.count
+            return ApplicationDeploymentsPage(count: max(total, sorted.count), deployments: sorted)
+        }
+
+        // 3) `{ "count", "deployments" }` à la racine
+        if let page = try? decoder.decode(ApplicationDeploymentsPage.self, from: data) {
+            return Self.normalizedDeploymentsPage(page)
+        }
+
+        // 4) Tableau de lignes `application_deployment_queue` à la racine
+        if let items = try? decoder.decode([DeploymentQueueItem].self, from: data) {
+            let sorted = items.sortedByDeploymentDateDescending()
+            return ApplicationDeploymentsPage(count: sorted.count, deployments: sorted)
+        }
+
         do {
-            return try JSONDecoder().decode(ApplicationDeploymentsPage.self, from: data)
+            let rows = try decoder.decode([CoolifyApplicationAPIRow].self, from: data)
+            let items = rows.map { $0.asDeploymentQueueItem() }
+            let sorted = items.sortedByDeploymentDateDescending()
+            return ApplicationDeploymentsPage(count: sorted.count, deployments: sorted)
         } catch {
             throw CoolifyAPIError.decoding(error)
         }
+    }
+
+    private static func normalizedDeploymentsPage(_ page: ApplicationDeploymentsPage) -> ApplicationDeploymentsPage {
+        let sorted = page.deployments.sortedByDeploymentDateDescending()
+        let count = max(page.count, sorted.count)
+        return ApplicationDeploymentsPage(count: count, deployments: sorted)
     }
 }
