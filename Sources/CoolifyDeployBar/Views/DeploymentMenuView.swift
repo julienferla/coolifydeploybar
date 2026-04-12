@@ -95,16 +95,6 @@ struct DeploymentMenuView: View {
                             .padding(.vertical, 10)
                             .padding(.horizontal, 10)
                     }
-                    if timelineWithoutHighlight.isEmpty,
-                       highlightedDeployment != nil,
-                       monitor.history.count < monitor.historyTotal
-                    {
-                        Color.clear
-                            .frame(height: 1)
-                            .onAppear {
-                                Task { await monitor.loadMoreHistory(settings: settings) }
-                            }
-                    }
                     // Indices : si l’API renvoie plusieurs lignes avec le même `deployment_uuid`, `id: \.element.id`
                     // casse le rendu SwiftUI (liste vide / incohérente).
                     ForEach(Array(timelineWithoutHighlight.indices), id: \.self) { index in
@@ -116,22 +106,6 @@ struct DeploymentMenuView: View {
                             Divider()
                                 .padding(.leading, 10)
                         }
-                        if index == timelineWithoutHighlight.count - 1 {
-                            Color.clear
-                                .frame(height: 1)
-                                .onAppear {
-                                    Task { await monitor.loadMoreHistory(settings: settings) }
-                                }
-                        }
-                    }
-                    if monitor.isLoadingMoreHistory {
-                        HStack {
-                            Spacer()
-                            ProgressView()
-                                .scaleEffect(0.75)
-                            Spacer()
-                        }
-                        .padding(.vertical, 8)
                     }
                 }
             }
@@ -165,14 +139,14 @@ struct DeploymentMenuView: View {
                 return
             }
             monitor.startPolling(settings: settings)
+            if settings.notifyOnDeploymentComplete {
+                await DeployNotificationService.ensureAuthorization()
+            }
             await loadApplicationsForMenu()
             await monitor.refresh(settings: settings)
         }
         .onChange(of: settings.applicationUUID) { _, _ in
             Task { await monitor.refresh(settings: settings) }
-        }
-        .onDisappear {
-            monitor.stopPolling()
         }
     }
 
@@ -190,7 +164,7 @@ struct DeploymentMenuView: View {
                     if !settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                        monitor.historyTotal > 0
                     {
-                        Text("\(monitor.history.count) chargé · \(monitor.historyTotal) au total")
+                        Text("\(monitor.history.count) / \(DeploymentMonitor.deploymentHistoryLimit) derniers · \(monitor.historyTotal) au total")
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
@@ -288,19 +262,51 @@ struct DeploymentMenuView: View {
     private func lastDeploymentHighlight(_ item: DeploymentQueueItem) -> some View {
         let accent = statusAccent(for: item)
         return VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("Dernier déploiement")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                if let d = item.deploymentDate {
-                    Text(d.formatted(date: .omitted, time: .shortened))
-                        .font(.caption.monospacedDigit().weight(.medium))
-                        .foregroundStyle(accent)
-                } else {
-                    Text("—")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
+            if item.isBuildInProgress {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Dernier déploiement")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    if let start = item.deploymentStartedAt {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text("Lancé")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            Text(start.formatted(date: .omitted, time: .standard))
+                                .font(.caption.monospacedDigit().weight(.medium))
+                                .foregroundStyle(accent)
+                        }
+                        TimelineView(.periodic(from: .now, by: 1.0)) { context in
+                            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                Text("Durée")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                                Text(Self.formatDeployElapsed(since: start, now: context.date))
+                                    .font(.caption.monospacedDigit().weight(.semibold))
+                                    .foregroundStyle(accent)
+                            }
+                        }
+                    } else {
+                        Text("Heure de lancement inconnue")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("Dernier déploiement")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    if let d = item.deploymentDate {
+                        Text(d.formatted(date: .omitted, time: .shortened))
+                            .font(.caption.monospacedDigit().weight(.medium))
+                            .foregroundStyle(accent)
+                    } else {
+                        Text("—")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
             }
             HStack(alignment: .center, spacing: 8) {
@@ -403,5 +409,20 @@ struct DeploymentMenuView: View {
         if s.contains("fail") || s == "error" { return .red }
         if s.contains("progress") || s == "running" || s == "queued" || s == "pending" { return .blue }
         return .gray
+    }
+
+    /// Durée écoulée depuis le lancement (compte les secondes, format lisible).
+    private static func formatDeployElapsed(since start: Date, now: Date) -> String {
+        let sec = max(0, Int(now.timeIntervalSince(start).rounded(.down)))
+        let h = sec / 3600
+        let m = (sec % 3600) / 60
+        let s = sec % 60
+        if h > 0 {
+            return String(format: "%d h %02d min %02d s", h, m, s)
+        }
+        if m > 0 {
+            return String(format: "%d min %02d s", m, s)
+        }
+        return String(format: "%d s", s)
     }
 }

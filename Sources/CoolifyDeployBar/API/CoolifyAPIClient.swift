@@ -97,7 +97,7 @@ struct CoolifyAPIClient: Sendable {
 
     /// Historique pour une application : `{ count, deployments }`, parfois sous `data` (Laravel / ressources API),
     /// parfois un tableau de lignes file d’attente, ou (ancien) un tableau d’objets Application.
-    func fetchApplicationDeployments(applicationUUID: String, skip: Int = 0, take: Int = 15) async throws
+    func fetchApplicationDeployments(applicationUUID: String, skip: Int = 0, take: Int = 10) async throws
         -> ApplicationDeploymentsPage
     {
         let (data, _) = try await request(

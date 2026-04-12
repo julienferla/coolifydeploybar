@@ -19,7 +19,7 @@ enum SettingsWindowPresenter {
         }
 
         let w = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 440),
+            contentRect: NSRect(x: 0, y: 0, width: 580, height: 540),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
@@ -38,7 +38,7 @@ enum SettingsWindowPresenter {
         NSHostingView(
             rootView: SettingsView()
                 .environmentObject(settings)
-                .frame(minWidth: 460, minHeight: 360)
+                .frame(minWidth: 520, minHeight: 420)
         )
     }
 

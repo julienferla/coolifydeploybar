@@ -3,6 +3,8 @@ import SwiftUI
 
 @MainActor
 final class DeploymentMonitor: ObservableObject {
+    /// Nombre max de déploiements demandés à l’API (pas de pagination au-delà).
+    static let deploymentHistoryLimit = 10
     @Published private(set) var queued: [DeploymentQueueItem] = []
     @Published private(set) var history: [DeploymentQueueItem] = []
     @Published private(set) var historyTotal: Int = 0
@@ -12,8 +14,6 @@ final class DeploymentMonitor: ObservableObject {
 
     /// Évite de fusionner l’historique d’une autre app si l’UUID change pendant un chargement.
     private var loadedApplicationUUID: String = ""
-    @Published private(set) var isLoadingMoreHistory = false
-
     private var pollTask: Task<Void, Never>?
 
     func startPolling(settings: AppSettings) {
@@ -39,7 +39,7 @@ final class DeploymentMonitor: ObservableObject {
             history = []
             historyTotal = 0
             loadedApplicationUUID = ""
-            recomputeMenuBarVisual()
+            recomputeMenuBarVisual(settings: settings)
             return
         }
 
@@ -67,9 +67,11 @@ final class DeploymentMonitor: ObservableObject {
             historyCount = 0
         } else {
             do {
-                // Recharger toutes les pages déjà chargées (scroll infini) sans perdre le skip cumulé.
-                let take = max(15, history.count)
-                let h = try await client.fetchApplicationDeployments(applicationUUID: appId, skip: 0, take: take)
+                let h = try await client.fetchApplicationDeployments(
+                    applicationUUID: appId,
+                    skip: 0,
+                    take: Self.deploymentHistoryLimit
+                )
                 historyDeployments = h.deployments.sortedByDeploymentDateDescending()
                 historyCount = h.count
             } catch {
@@ -83,44 +85,11 @@ final class DeploymentMonitor: ObservableObject {
 
         lastUpdated = Date()
         lastError = errors.isEmpty ? nil : errors.joined(separator: " · ")
-        recomputeMenuBarVisual()
+        recomputeMenuBarVisual(settings: settings)
     }
 
-    func loadMoreHistory(settings: AppSettings) async {
-        guard settings.isConfigured else { return }
-        let appId = settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !appId.isEmpty, history.count < historyTotal, !isLoadingMoreHistory else { return }
-
-        isLoadingMoreHistory = true
-        defer { isLoadingMoreHistory = false }
-
-        let client = CoolifyAPIClient(baseURL: settings.baseURL, token: settings.apiToken)
-        let skip = history.count
-        let take = 15
-        do {
-            let page = try await client.fetchApplicationDeployments(applicationUUID: appId, skip: skip, take: take)
-            var merged = history
-            var seen = Set(merged.map(\.deployment_uuid))
-            for d in page.deployments where !seen.contains(d.deployment_uuid) {
-                merged.append(d)
-                seen.insert(d.deployment_uuid)
-            }
-            history = merged.sortedByDeploymentDateDescending()
-            historyTotal = page.count
-            do {
-                let fresh = try await client.fetchQueuedDeployments()
-                queued = Self.buildDisplayQueue(global: fresh, history: history)
-            } catch {
-                let msg = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-                lastError = (lastError.map { $0 + " · " } ?? "") + msg
-            }
-            recomputeMenuBarVisual()
-        } catch {
-            lastError = (lastError.map { $0 + " · " } ?? "") + ((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
-        }
-    }
-
-    func recomputeMenuBarVisual() {
+    func recomputeMenuBarVisual(settings: AppSettings) {
+        let previous = menuBarVisual
         var byUUID: [String: DeploymentQueueItem] = [:]
         for item in history + queued {
             if let existing = byUUID[item.deployment_uuid] {
@@ -132,24 +101,39 @@ final class DeploymentMonitor: ObservableObject {
             }
         }
         let combined = Array(byUUID.values)
+
+        let newVisual: MenuBarDeploymentVisual
+        let completedItem: DeploymentQueueItem?
+
         if combined.contains(where: \.isBuildInProgress) {
-            menuBarVisual = .deploying
-            return
-        }
-        let finished = combined
-            .filter { !$0.isBuildInProgress }
-            .sorted { ($0.deploymentDate ?? .distantPast) > ($1.deploymentDate ?? .distantPast) }
-        guard let latest = finished.first else {
-            menuBarVisual = .idle
-            return
-        }
-        if latest.isBuildSuccessful {
-            menuBarVisual = .success
-        } else if latest.isBuildFailed {
-            menuBarVisual = .failure
+            newVisual = .deploying
+            completedItem = nil
         } else {
-            menuBarVisual = .idle
+            let finished = combined
+                .filter { !$0.isBuildInProgress }
+                .sorted { ($0.deploymentDate ?? .distantPast) > ($1.deploymentDate ?? .distantPast) }
+            if let latest = finished.first {
+                completedItem = latest
+                if latest.isBuildSuccessful {
+                    newVisual = .success
+                } else if latest.isBuildFailed {
+                    newVisual = .failure
+                } else {
+                    newVisual = .idle
+                }
+            } else {
+                newVisual = .idle
+                completedItem = nil
+            }
         }
+
+        menuBarVisual = newVisual
+        DeployNotificationService.postCompletionIfNeeded(
+            from: previous,
+            to: newVisual,
+            completedItem: completedItem,
+            notifyEnabled: settings.notifyOnDeploymentComplete
+        )
     }
 
     /// File affichée : endpoint global `/deployments` + entrées **en cours** présentes seulement dans l’historique app (ex. `running:starting`).

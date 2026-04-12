@@ -13,35 +13,57 @@ struct SettingsView: View {
     @State private var isCheckingRelease = false
 
     var body: some View {
-        Form {
-            Section {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(alignment: .top, spacing: 14) {
-                        // `arrow.triangle.branch.circle.fill` n’existe pas sur toutes les versions macOS (erreur runtime).
-                        Image(systemName: "arrow.triangle.branch")
-                            .font(.system(size: 44))
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundStyle(.blue)
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Coolify Deploy Bar")
-                                .font(.title3.weight(.semibold))
-                            Text("Version \(AppVersion.marketingVersion) (\(AppVersion.buildNumber))")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            if let tag = releaseTag {
-                                if let releaseStatus {
-                                    Text(releaseStatus)
-                                        .font(.caption)
-                                        .foregroundStyle(hasNewerRelease ? Color.orange : .secondary)
-                                }
-                                Text("Dernière release GitHub : \(tag)")
-                                    .font(.caption2)
-                                    .foregroundStyle(.tertiary)
-                            }
-                        }
-                        Spacer(minLength: 0)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                applicationSection
+                connectionSection
+                monitoringSection
+                notificationsSection
+            }
+            .padding(24)
+            .frame(maxWidth: 560, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .background(Color(nsColor: .windowBackgroundColor))
+        .task {
+            await checkGitHubRelease(userInitiated: false)
+        }
+    }
+
+    // MARK: - Sections
+
+    private var applicationSection: some View {
+        GroupBox {
+            HStack(alignment: .top, spacing: 16) {
+                Image(systemName: "arrow.triangle.branch")
+                    .font(.system(size: 40))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.tint)
+                    .frame(width: 48, height: 48)
+                    .background {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(.quaternary.opacity(0.6))
                     }
-                    HStack(spacing: 12) {
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Coolify Deploy Bar")
+                        .font(.title3.weight(.semibold))
+                    Text("Version \(AppVersion.marketingVersion) (\(AppVersion.buildNumber))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+
+                    if let tag = releaseTag {
+                        if let releaseStatus {
+                            Text(releaseStatus)
+                                .font(.caption)
+                                .foregroundStyle(hasNewerRelease ? Color.orange : .secondary)
+                        }
+                        Text("Dernière release GitHub : \(tag)")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+
+                    HStack(spacing: 10) {
                         Button {
                             Task { await checkGitHubRelease(userInitiated: true) }
                         } label: {
@@ -51,69 +73,162 @@ struct SettingsView: View {
                                 Label("Vérifier les mises à jour", systemImage: "arrow.down.circle")
                             }
                         }
+                        .buttonStyle(.bordered)
+                        .controlSize(.regular)
                         .disabled(isCheckingRelease)
+
                         if let releaseActionURL {
                             if hasNewerRelease {
                                 Link("Télécharger la mise à jour", destination: releaseActionURL)
-                                    .font(.subheadline)
+                                    .font(.subheadline.weight(.medium))
                             } else {
                                 Link("Voir sur GitHub", destination: releaseActionURL)
-                                    .font(.subheadline)
+                                    .font(.subheadline.weight(.medium))
                             }
                         }
                     }
+                    .padding(.top, 4)
                 }
-                .padding(.vertical, 4)
-            } header: {
-                Text("Application")
+                Spacer(minLength: 0)
             }
+            .padding(.vertical, 4)
+        } label: {
+            sectionLabel("Application", systemImage: "shippingbox")
+        }
+    }
 
-            Section("Connexion Coolify") {
-                TextField("URL (ex. https://coolify.example.com)", text: $settings.baseURL)
-                SecureField("Token API (sans « Bearer »)", text: $settings.apiToken)
-            }
-            Section("Surveillance") {
-                TextField("UUID application (historique)", text: $settings.applicationUUID)
-                    .font(.system(.body, design: .monospaced))
-                Stepper(
-                    value: $settings.pollIntervalSeconds,
-                    in: 5 ... 600,
-                    step: 5
-                ) {
-                    Text("Intervalle : \(Int(settings.pollIntervalSeconds)) s")
+    private var connectionSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 14) {
+                LabeledContent {
+                    TextField("https://coolify.example.com", text: $settings.baseURL)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.body)
+                } label: {
+                    Text("URL du serveur")
                 }
-                HStack {
-                    Button("Charger les applications") {
-                        Task { await loadApplications() }
+
+                LabeledContent {
+                    SecureField("Collez votre token API", text: $settings.apiToken)
+                        .textFieldStyle(.roundedBorder)
+                } label: {
+                    Text("Token API")
+                }
+
+                Text("Sans préfixe « Bearer » — uniquement la valeur du secret.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        } label: {
+            sectionLabel("Connexion Coolify", systemImage: "link")
+        }
+    }
+
+    private var monitoringSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 14) {
+                LabeledContent {
+                    TextField("UUID de l’application Coolify", text: $settings.applicationUUID)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(.body, design: .monospaced))
+                } label: {
+                    Text("UUID application")
+                }
+
+                Text("Utilisé pour l’historique des déploiements dans la barre de menu.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                LabeledContent {
+                    Stepper(value: $settings.pollIntervalSeconds, in: 5 ... 600, step: 5) {
+                        Text("\(Int(settings.pollIntervalSeconds)) s")
+                            .monospacedDigit()
+                            .frame(minWidth: 44, alignment: .trailing)
                     }
+                } label: {
+                    Text("Intervalle de rafraîchissement")
+                }
+
+                HStack(alignment: .center, spacing: 12) {
+                    Button {
+                        Task { await loadApplications() }
+                    } label: {
+                        Label("Charger les applications", systemImage: "arrow.down.doc")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.regular)
                     .disabled(!settings.isConfigured || isLoadingApps)
+
                     if isLoadingApps {
                         ProgressView()
-                            .scaleEffect(0.7)
+                            .controlSize(.small)
                     }
                 }
+
                 if let loadAppsError {
                     Text(loadAppsError)
                         .font(.caption)
                         .foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
+
                 if !applications.isEmpty {
-                    Picker("Choisir une application", selection: $settings.applicationUUID) {
-                        Text("— Aucune —").tag("")
-                        ForEach(applications) { app in
-                            Text("\(app.name) (\(app.uuid.prefix(8))…)")
-                                .tag(app.uuid)
+                    Divider()
+                        .padding(.vertical, 4)
+                    LabeledContent {
+                        Picker("", selection: $settings.applicationUUID) {
+                            Text("— Aucune —").tag("")
+                            ForEach(applications) { app in
+                                Text("\(app.name) (\(String(app.uuid.prefix(8)))…)")
+                                    .tag(app.uuid)
+                            }
                         }
+                        .labelsHidden()
+                    } label: {
+                        Text("Choisir dans la liste")
                     }
                 }
             }
-        }
-        .padding()
-        .frame(minWidth: 460, minHeight: 380)
-        .task {
-            await checkGitHubRelease(userInitiated: false)
+        } label: {
+            sectionLabel("Surveillance", systemImage: "chart.line.uptrend.xyaxis")
         }
     }
+
+    private var notificationsSection: some View {
+        GroupBox {
+            Toggle(isOn: $settings.notifyOnDeploymentComplete) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Notifier à la fin d’un déploiement")
+                        .font(.body.weight(.medium))
+                    Text(
+                        "Une notification macOS lorsque Coolify signale la fin d’un build "
+                            + "(succès ou échec), pas pendant l’exécution."
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .toggleStyle(.switch)
+            .onChange(of: settings.notifyOnDeploymentComplete) { _, enabled in
+                if enabled {
+                    Task { await DeployNotificationService.ensureAuthorization() }
+                }
+            }
+        } label: {
+            sectionLabel("Notifications", systemImage: "bell.badge")
+        }
+    }
+
+    private func sectionLabel(_ title: String, systemImage: String) -> some View {
+        Label(title, systemImage: systemImage)
+            .font(.headline)
+            .labelStyle(.titleAndIcon)
+            .foregroundStyle(.primary)
+    }
+
+    // MARK: - Actions
 
     @MainActor
     private func checkGitHubRelease(userInitiated: Bool) async {
@@ -153,7 +268,9 @@ struct SettingsView: View {
         defer { isLoadingApps = false }
         let client = CoolifyAPIClient(baseURL: settings.baseURL, token: settings.apiToken)
         do {
-            applications = try await client.fetchApplications().sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            applications = try await client.fetchApplications().sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
         } catch {
             loadAppsError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }

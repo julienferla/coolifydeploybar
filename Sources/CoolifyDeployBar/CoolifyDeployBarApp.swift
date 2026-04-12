@@ -11,8 +11,7 @@ struct CoolifyDeployBarApp: App {
                 .environmentObject(settings)
                 .environmentObject(monitor)
         } label: {
-            MenuBarIconView(state: monitor.menuBarVisual)
-                .accessibilityLabel("Coolify Deploy Bar")
+            MenuBarLabelView(settings: settings, monitor: monitor)
         }
         .menuBarExtraStyle(.window)
     }

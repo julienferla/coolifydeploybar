@@ -208,6 +208,15 @@ extension DeploymentQueueItem {
         return nil
     }
 
+    /// Heure de **lancement** (préfère `created_at` ; sinon même logique que `deploymentDate`).
+    var deploymentStartedAt: Date? {
+        if let c = created_at {
+            if let d = Self.iso8601Fractional.date(from: c) { return d }
+            if let d = Self.iso8601.date(from: c) { return d }
+        }
+        return deploymentDate
+    }
+
     var isBuildSuccessful: Bool {
         let s = status.lowercased()
         if s.contains("unhealthy") || s.contains("unsuccess") { return false }
