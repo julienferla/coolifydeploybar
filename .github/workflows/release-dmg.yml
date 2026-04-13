@@ -16,6 +16,8 @@ jobs:
       - name: Build DMG
         env:
           GITHUB_REF_NAME: ${{ github.event.release.tag_name }}
+          # GitHub runners have no Apple Development team; use SwiftPM bundle (unsigned DMG).
+          BUILD_WITH_SWIFT: "1"
         run: |
           chmod +x scripts/make-dmg.sh
           ./scripts/make-dmg.sh "${{ github.event.release.tag_name }}"

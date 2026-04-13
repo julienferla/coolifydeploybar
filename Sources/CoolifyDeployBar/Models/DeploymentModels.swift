@@ -217,36 +217,38 @@ extension DeploymentQueueItem {
         return deploymentDate
     }
 
+    /// Aligné sur `App\Enums\ApplicationDeploymentStatus` Coolify : `queued`, `in_progress`, `finished`, `failed`, `cancelled-by-user`.
+    /// Les chaînes `running:*` viennent souvent du **statut d’application** (Docker / healthcheck), pas de la file de déploiement.
     var isBuildSuccessful: Bool {
-        let s = status.lowercased()
+        let s = status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if s.contains("unhealthy") || s.contains("unsuccess") { return false }
-        return s == "finished" || s == "success" || s == "successful"
-            || (s.contains("success") && !s.contains("unsuccess"))
-            || s.contains(":healthy")
+        if s == "finished" || s == "success" || s == "successful" { return true }
+        // Application « up » après build : à afficher comme succès (pas comme déploiement en cours).
+        if s == "running:healthy" { return true }
+        return false
     }
 
     var isBuildFailed: Bool {
-        let s = status.lowercased()
-        return s == "failed" || s == "error" || s.contains("fail")
-            || s == "cancelled" || s == "canceled"
-            || s.contains("unhealthy")
+        let s = status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if s == "failed" || s == "error" { return true }
+        if s == "cancelled-by-user" || s == "cancelled" || s == "canceled" { return true }
+        if s == "running:unhealthy" { return true }
+        if s.contains("unhealthy") { return true }
+        return false
     }
 
     var isBuildInProgress: Bool {
         if isBuildSuccessful || isBuildFailed { return false }
-        let s = status.lowercased()
-        if s == "finished" || s == "failed" || s == "error" || s == "cancelled" || s == "canceled" { return false }
-        return s == "in_progress"
-            || s.contains("progress")
-            || s == "queued"
-            || s == "pending"
-            || s == "running"
-            || s == "deploying"
-            || s == "building"
-            || s.contains(":starting")
-            || s.contains(":queued")
-            || s.contains(":building")
-            || s.contains("deploying")
+        let s = status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if s == "finished" || s == "failed" || s == "error" { return false }
+        if s == "cancelled-by-user" || s == "cancelled" || s == "canceled" { return false }
+        // File Coolify : seuls `queued` et `in_progress` sont « en cours » (cf. DeployController).
+        if s == "in_progress" || s == "queued" { return true }
+        // États transitoires parfois exposés hors enum strict.
+        if s == "pending" || s == "deploying" || s == "building" { return true }
+        if s == "running:starting" { return true }
+        if s == "starting" { return true }
+        return false
     }
 }
 

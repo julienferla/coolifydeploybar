@@ -32,14 +32,12 @@ enum DeployNotificationService {
 
     @MainActor
     static func postCompletionIfNeeded(
-        from oldVisual: MenuBarDeploymentVisual,
         to newVisual: MenuBarDeploymentVisual,
         completedItem: DeploymentQueueItem?,
         notifyEnabled: Bool,
         openURL: URL?
     ) async {
         guard notifyEnabled else { return }
-        guard oldVisual == .deploying else { return }
         guard newVisual == .success || newVisual == .failure else { return }
 
         let content = UNMutableNotificationContent()

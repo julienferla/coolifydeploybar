@@ -3,22 +3,23 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7C4D8E9F0A1B2C3D4E5F6002 /* ApplicationRoutingDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4D8E9F0A1B2C3D4E5F6001 /* ApplicationRoutingDetail.swift */; };
-		7C4D8E9F0A1B2C3D4E5F6004 /* CoolifyDeploymentURLResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4D8E9F0A1B2C3D4E5F6003 /* CoolifyDeploymentURLResolver.swift */; };
-		7C4D8E9F0A1B2C3D4E5F6006 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4D8E9F0A1B2C3D4E5F6005 /* AppDelegate.swift */; };
+		17CD94C028B50DBDC7E958A2 /* ApplicationRoutingDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA5067AE0297AD847237F377 /* ApplicationRoutingDetail.swift */; };
+		243E7392D0C79A2C8A340BCF /* CoolifyDeploymentURLResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F9009C803EB5B355F08D5D /* CoolifyDeploymentURLResolver.swift */; };
+		293BE75C0E9058C8DC9A5677 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4FF8A42C4291146B1BF3BB /* AppDelegate.swift */; };
 		3176B99979788737CCA7FCB9 /* CoolifyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E65D30637663E7E2E717D8 /* CoolifyAPIClient.swift */; };
 		37C1581321E3B9BA45FE3A22 /* GitHubReleaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3A45D1A38776528DFAB563 /* GitHubReleaseService.swift */; };
-		E0123456789012345678901A /* DeployNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0123456789012345678901B /* DeployNotificationService.swift */; };
 		3E7646D7277D8DA4C5BFD508 /* MenuBarIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1EE399D53A6E2807F236427 /* MenuBarIconView.swift */; };
 		43F4D69621B6BE773B504C6F /* DeploymentMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2872EABA79766FB5595136F5 /* DeploymentMenuView.swift */; };
 		4FDF028268A93B95723D1062 /* CoolifyDeployBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27D82537334FA1C141D6C4E /* CoolifyDeployBarApp.swift */; };
 		5A9CC9DA81AD688E4E592D4A /* CoolifyAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D0324502215E49A789656A /* CoolifyAPIError.swift */; };
 		6406E4376E3558497373A42E /* DeploymentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C1E09BB88F35FDF6A0E22F /* DeploymentModels.swift */; };
 		73D97440DE32293A420DFCD4 /* ApplicationSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F98A00B1B31E79433DC0D3D /* ApplicationSummary.swift */; };
+		8F6990465110782AF9558F5F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6AF7389E1D4FEA23774307CD /* Assets.xcassets */; };
+		94842D1588804BA9C5009C85 /* DeployNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA5E2F6761C48D0E4870FDA /* DeployNotificationService.swift */; };
 		A631E09F428F3C962324C6A4 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF6BD7B54F794176C6FD385 /* SettingsView.swift */; };
 		A95AB227491763D1F4B42D9C /* DeploymentMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3828B3013EE3C2CCFB50778 /* DeploymentMonitor.swift */; };
 		D925C006FF8C95C269CA4D6F /* SettingsWindowPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A376111EADBB45B70F85419B /* SettingsWindowPresenter.swift */; };
@@ -26,30 +27,31 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		7C4D8E9F0A1B2C3D4E5F6001 /* ApplicationRoutingDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRoutingDetail.swift; sourceTree = "<group>"; };
-		7C4D8E9F0A1B2C3D4E5F6003 /* CoolifyDeploymentURLResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolifyDeploymentURLResolver.swift; sourceTree = "<group>"; };
-		7C4D8E9F0A1B2C3D4E5F6005 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2872EABA79766FB5595136F5 /* DeploymentMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentMenuView.swift; sourceTree = "<group>"; };
+		4EA5E2F6761C48D0E4870FDA /* DeployNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeployNotificationService.swift; sourceTree = "<group>"; };
+		6AF7389E1D4FEA23774307CD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		80E65D30637663E7E2E717D8 /* CoolifyAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolifyAPIClient.swift; sourceTree = "<group>"; };
 		9A3A45D1A38776528DFAB563 /* GitHubReleaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubReleaseService.swift; sourceTree = "<group>"; };
-		E0123456789012345678901B /* DeployNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeployNotificationService.swift; sourceTree = "<group>"; };
 		9C0B51CBCC2882D08C865BF6 /* CoolifyDeployBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoolifyDeployBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F98A00B1B31E79433DC0D3D /* ApplicationSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSummary.swift; sourceTree = "<group>"; };
 		A376111EADBB45B70F85419B /* SettingsWindowPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowPresenter.swift; sourceTree = "<group>"; };
 		A3828B3013EE3C2CCFB50778 /* DeploymentMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentMonitor.swift; sourceTree = "<group>"; };
 		B31C801CED175B6ACE2EF34C /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		B8D0324502215E49A789656A /* CoolifyAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolifyAPIError.swift; sourceTree = "<group>"; };
+		BA5067AE0297AD847237F377 /* ApplicationRoutingDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRoutingDetail.swift; sourceTree = "<group>"; };
 		C27D82537334FA1C141D6C4E /* CoolifyDeployBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolifyDeployBarApp.swift; sourceTree = "<group>"; };
 		D2C1E09BB88F35FDF6A0E22F /* DeploymentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentModels.swift; sourceTree = "<group>"; };
 		DAF6BD7B54F794176C6FD385 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F1EE399D53A6E2807F236427 /* MenuBarIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarIconView.swift; sourceTree = "<group>"; };
+		F7F9009C803EB5B355F08D5D /* CoolifyDeploymentURLResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolifyDeploymentURLResolver.swift; sourceTree = "<group>"; };
+		FF4FF8A42C4291146B1BF3BB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		24010C2393E86B3CF9F8E62E /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				7C4D8E9F0A1B2C3D4E5F6001 /* ApplicationRoutingDetail.swift */,
+				BA5067AE0297AD847237F377 /* ApplicationRoutingDetail.swift */,
 				9F98A00B1B31E79433DC0D3D /* ApplicationSummary.swift */,
 				D2C1E09BB88F35FDF6A0E22F /* DeploymentModels.swift */,
 			);
@@ -81,12 +83,20 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
+		6DBA3C4EEBAF2619B55B1A7B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6AF7389E1D4FEA23774307CD /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		8D6DC5A11941912327E832FA /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				7C4D8E9F0A1B2C3D4E5F6003 /* CoolifyDeploymentURLResolver.swift */,
-				E0123456789012345678901B /* DeployNotificationService.swift */,
+				F7F9009C803EB5B355F08D5D /* CoolifyDeploymentURLResolver.swift */,
 				A3828B3013EE3C2CCFB50778 /* DeploymentMonitor.swift */,
+				4EA5E2F6761C48D0E4870FDA /* DeployNotificationService.swift */,
 				9A3A45D1A38776528DFAB563 /* GitHubReleaseService.swift */,
 			);
 			path = Services;
@@ -113,7 +123,7 @@
 		F57F343A1349C0DE0E580500 /* CoolifyDeployBar */ = {
 			isa = PBXGroup;
 			children = (
-				7C4D8E9F0A1B2C3D4E5F6005 /* AppDelegate.swift */,
+				FF4FF8A42C4291146B1BF3BB /* AppDelegate.swift */,
 				C27D82537334FA1C141D6C4E /* CoolifyDeployBarApp.swift */,
 				A376111EADBB45B70F85419B /* SettingsWindowPresenter.swift */,
 				4FEEE8BBABA0D69BBF6FDDA2 /* API */,
@@ -128,6 +138,7 @@
 		FCF38EEB44F2FDEE8E3BBB14 = {
 			isa = PBXGroup;
 			children = (
+				6DBA3C4EEBAF2619B55B1A7B /* Resources */,
 				5793262304B3A1931398CE2C /* Sources */,
 				2A1E18254FC0627B0900B54C /* Products */,
 			);
@@ -141,6 +152,7 @@
 			buildConfigurationList = DB28C06DDAF68FFE02869C26 /* Build configuration list for PBXNativeTarget "CoolifyDeployBar" */;
 			buildPhases = (
 				08F3CC181D57F63BD12255A8 /* Sources */,
+				2E059B6AC8236AC776448D0D /* Resources */,
 			);
 			buildRules = (
 			);
@@ -162,9 +174,13 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					F26EF3251EFD025DC567534E = {
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = ADF3ACDD08780EB674C3DF1B /* Build configuration list for PBXProject "CoolifyDeployBar" */;
+			compatibilityVersion = "Xcode 15.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -173,7 +189,6 @@
 			);
 			mainGroup = FCF38EEB44F2FDEE8E3BBB14;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 2A1E18254FC0627B0900B54C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -183,22 +198,33 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		2E059B6AC8236AC776448D0D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F6990465110782AF9558F5F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		08F3CC181D57F63BD12255A8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7C4D8E9F0A1B2C3D4E5F6006 /* AppDelegate.swift in Sources */,
+				293BE75C0E9058C8DC9A5677 /* AppDelegate.swift in Sources */,
 				DD89AAD0E4181B1BF94E94BF /* AppSettings.swift in Sources */,
-				7C4D8E9F0A1B2C3D4E5F6002 /* ApplicationRoutingDetail.swift in Sources */,
+				17CD94C028B50DBDC7E958A2 /* ApplicationRoutingDetail.swift in Sources */,
 				73D97440DE32293A420DFCD4 /* ApplicationSummary.swift in Sources */,
 				3176B99979788737CCA7FCB9 /* CoolifyAPIClient.swift in Sources */,
 				5A9CC9DA81AD688E4E592D4A /* CoolifyAPIError.swift in Sources */,
 				4FDF028268A93B95723D1062 /* CoolifyDeployBarApp.swift in Sources */,
-				7C4D8E9F0A1B2C3D4E5F6004 /* CoolifyDeploymentURLResolver.swift in Sources */,
+				243E7392D0C79A2C8A340BCF /* CoolifyDeploymentURLResolver.swift in Sources */,
+				94842D1588804BA9C5009C85 /* DeployNotificationService.swift in Sources */,
 				43F4D69621B6BE773B504C6F /* DeploymentMenuView.swift in Sources */,
 				6406E4376E3558497373A42E /* DeploymentModels.swift in Sources */,
-				E0123456789012345678901A /* DeployNotificationService.swift in Sources */,
 				A95AB227491763D1F4B42D9C /* DeploymentMonitor.swift in Sources */,
 				37C1581321E3B9BA45FE3A22 /* GitHubReleaseService.swift in Sources */,
 				3E7646D7277D8DA4C5BFD508 /* MenuBarIconView.swift in Sources */,
@@ -214,6 +240,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -233,6 +260,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -282,7 +310,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -301,7 +329,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -347,7 +375,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -360,7 +388,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

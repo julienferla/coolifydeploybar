@@ -5,31 +5,10 @@ struct DeploymentMenuView: View {
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var monitor: DeploymentMonitor
 
-    @State private var menuApplications: [ApplicationSummary] = []
-    @State private var isLoadingMenuApplications = false
-    @State private var menuApplicationsError: String?
-
     /// Empreinte connexion pour relancer chargement / polling si URL ou token change.
     private var connectionFingerprint: String {
         settings.baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
             + "|" + settings.apiToken.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    /// Liste pour le sélecteur : apps Coolify + entrée synthétique si l’UUID enregistré n’est pas dans la liste (saisie manuelle).
-    private var applicationsForPicker: [ApplicationSummary] {
-        var list = menuApplications
-        let id = settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !id.isEmpty, !list.contains(where: { $0.uuid == id }) {
-            list.append(
-                ApplicationSummary(
-                    uuid: id,
-                    name: "UUID enregistré (\(String(id.prefix(8)))…)",
-                    fqdn: nil,
-                    description: nil
-                )
-            )
-        }
-        return list.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     /// File + historique fusionnés par `deployment_uuid` en gardant **la ligne la plus récente** (évite incohérence queued vs history).
@@ -88,9 +67,7 @@ struct DeploymentMenuView: View {
                             .padding(.vertical, 4)
                     }
                     if timelineWithoutHighlight.isEmpty, highlightedDeployment == nil {
-                        Text(settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            ? "Indique l’UUID de l’application pour l’historique."
-                            : "Aucun déploiement à afficher pour le moment.")
+                        Text("Aucun déploiement à afficher pour le moment.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(.vertical, 10)
@@ -115,14 +92,27 @@ struct DeploymentMenuView: View {
             .frame(minHeight: 280, maxHeight: 400)
 
             Divider()
-            HStack {
+            HStack(spacing: 8) {
                 Button("Actualiser") {
                     Task {
-                        await loadApplicationsForMenu()
                         await monitor.refresh(settings: settings)
                     }
                 }
                 .keyboardShortcut("r", modifiers: .command)
+
+                Button {
+                    NSApplication.shared.terminate(nil)
+                } label: {
+                    Image(systemName: "power")
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 28, height: 28)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help("Quitter l’application")
+                .accessibilityLabel("Quitter l’application")
+
                 Spacer()
                 Button("Réglages…") {
                     SettingsWindowPresenter.show(settings: settings)
@@ -134,8 +124,6 @@ struct DeploymentMenuView: View {
         .frame(minWidth: 340)
         .task(id: connectionFingerprint) {
             guard settings.isConfigured else {
-                menuApplications = []
-                menuApplicationsError = nil
                 monitor.stopPolling()
                 return
             }
@@ -143,11 +131,7 @@ struct DeploymentMenuView: View {
             if settings.notifyOnDeploymentComplete {
                 await DeployNotificationService.ensureAuthorization()
             }
-            await loadApplicationsForMenu()
             await monitor.refresh(settings: settings)
-        }
-        .onChange(of: settings.applicationUUID) { _, _ in
-            Task { await monitor.refresh(settings: settings) }
         }
     }
 
@@ -162,73 +146,18 @@ struct DeploymentMenuView: View {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    if !settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                       monitor.historyTotal > 0
-                    {
-                        Text("\(monitor.history.count) / \(DeploymentMonitor.deploymentHistoryLimit) derniers · \(monitor.historyTotal) au total")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
+                    if monitor.historyTotal > 0 {
+                        Text(
+                            "\(monitor.history.count) déploiements récents (toutes apps) · \(monitor.historyTotal) enregistrements côté API (cumul)"
+                        )
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                     }
                 }
                 Spacer()
             }
-            if settings.isConfigured {
-                projectSelectorRow
-            }
         }
         .padding(10)
-    }
-
-    @ViewBuilder
-    private var projectSelectorRow: some View {
-        if isLoadingMenuApplications, menuApplications.isEmpty {
-            HStack(spacing: 6) {
-                ProgressView()
-                    .scaleEffect(0.7)
-                Text("Chargement des projets…")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        } else if let err = menuApplicationsError, menuApplications.isEmpty {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(err)
-                    .font(.caption2)
-                    .foregroundStyle(.red)
-                Button("Réessayer") {
-                    Task { await loadApplicationsForMenu() }
-                }
-                .font(.caption)
-            }
-        } else if applicationsForPicker.count > 1 {
-            HStack(alignment: .center) {
-                Text("Projet")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Spacer(minLength: 8)
-                Picker("Projet", selection: $settings.applicationUUID) {
-                    Text("— Aucune —").tag("")
-                    ForEach(applicationsForPicker) { app in
-                        Text("\(app.name) (\(String(app.uuid.prefix(8)))…)")
-                            .tag(app.uuid)
-                    }
-                }
-                .labelsHidden()
-                .pickerStyle(.menu)
-                .frame(maxWidth: 260, alignment: .trailing)
-            }
-        } else if let only = applicationsForPicker.first {
-            HStack {
-                Text("Projet")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Spacer(minLength: 8)
-                Text(only.name)
-                    .font(.caption)
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .multilineTextAlignment(.trailing)
-            }
-        }
     }
 
     @MainActor
@@ -236,7 +165,7 @@ struct DeploymentMenuView: View {
         Task { @MainActor in
             guard settings.isConfigured else { return }
             let client = CoolifyAPIClient(baseURL: settings.baseURL, token: settings.apiToken)
-            let id = settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines)
+            let id = monitor.resolvedApplicationUUID(for: item, settings: settings)
             let url = await CoolifyDeploymentURLResolver.resolveAsync(
                 client: client,
                 item: item,
@@ -264,33 +193,6 @@ struct DeploymentMenuView: View {
             .padding(.horizontal, 2)
             .contentShape(Rectangle())
             .help("Ouvre la page du déploiement ou de l’application dans Coolify")
-        }
-    }
-
-    private func loadApplicationsForMenu() async {
-        guard settings.isConfigured else {
-            menuApplications = []
-            menuApplicationsError = nil
-            return
-        }
-        isLoadingMenuApplications = true
-        menuApplicationsError = nil
-        defer { isLoadingMenuApplications = false }
-        let client = CoolifyAPIClient(baseURL: settings.baseURL, token: settings.apiToken)
-        do {
-            let apps = try await client.fetchApplications().sorted {
-                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-            }
-            menuApplications = apps
-            if apps.count == 1 {
-                let onlyId = apps[0].uuid.trimmingCharacters(in: .whitespacesAndNewlines)
-                if settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    settings.applicationUUID = onlyId
-                }
-            }
-        } catch {
-            menuApplications = []
-            menuApplicationsError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }
     }
 
@@ -436,18 +338,21 @@ struct DeploymentMenuView: View {
         .padding(.vertical, 2)
     }
 
+    /// Bleu explicite pour l’état « en cours » (indépendant de l’accent couleur macOS, souvent orange).
+    private static let deployInProgressBlue = Color(red: 0.05, green: 0.42, blue: 0.95)
+
     private func statusAccent(for item: DeploymentQueueItem) -> Color {
         if item.isBuildSuccessful { return .green }
         if item.isBuildFailed { return .red }
-        if item.isBuildInProgress { return .blue }
+        if item.isBuildInProgress { return Self.deployInProgressBlue }
         return statusTint(item.status)
     }
 
     private func statusTint(_ status: String) -> Color {
-        let s = status.lowercased()
-        if s.contains("success") || s == "finished" { return .green }
-        if s.contains("fail") || s == "error" { return .red }
-        if s.contains("progress") || s == "running" || s == "queued" || s == "pending" { return .blue }
+        let s = status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if s == "finished" || s == "success" || s == "successful" || s == "running:healthy" { return .green }
+        if s == "failed" || s == "error" || s == "cancelled-by-user" { return .red }
+        if s == "in_progress" || s == "queued" || s == "pending" { return Self.deployInProgressBlue }
         return .gray
     }
 

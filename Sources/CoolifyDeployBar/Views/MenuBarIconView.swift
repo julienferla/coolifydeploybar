@@ -1,6 +1,35 @@
 import AppKit
 import SwiftUI
 
+/// SF Symbol rendu en **palette AppKit** : dans un `MenuBarExtra`, `Image(systemName:)` + `foregroundStyle`
+/// est souvent forcé en **template monochrome** ; `NSImage` + `paletteColors` conserve vert / rouge / accent.
+private enum MenuBarPaletteSymbol {
+    static let systemName = "arrow.triangle.branch"
+    static let pointSize: CGFloat = 15
+
+    static func image(colors: [NSColor]) -> NSImage? {
+        guard let base = NSImage(systemSymbolName: systemName, accessibilityDescription: "Coolify Deploy Bar") else {
+            return nil
+        }
+        let size = NSImage.SymbolConfiguration(pointSize: pointSize, weight: .semibold)
+        let palette = NSImage.SymbolConfiguration(paletteColors: colors)
+        let config = size.applying(palette)
+        guard let configured = base.withSymbolConfiguration(config) else { return nil }
+        configured.isTemplate = false
+        return configured
+    }
+
+    @ViewBuilder
+    static func view(colors: [NSColor]) -> some View {
+        if let img = image(colors: colors) {
+            Image(nsImage: img)
+        } else {
+            Image(systemName: systemName)
+                .foregroundStyle(Color(nsColor: colors[0]))
+        }
+    }
+}
+
 /// Icône de la barre de menus : bleu animé en déploiement, vert / rouge selon le dernier résultat.
 enum MenuBarDeploymentVisual: Equatable {
     case idle
@@ -21,7 +50,7 @@ struct MenuBarLabelView: View {
     }
 
     var body: some View {
-        MenuBarIconView(state: monitor.menuBarVisual)
+        MenuBarIconView(state: monitor.menuBarVisual, deployingPulse: monitor.menuBarDeployingPulse)
             .accessibilityLabel("Coolify Deploy Bar")
             .task(id: connectionFingerprint) {
                 guard settings.isConfigured else {
@@ -39,12 +68,8 @@ struct MenuBarLabelView: View {
 
 struct MenuBarIconView: View {
     let state: MenuBarDeploymentVisual
-    /// 0…1 : remplissage du glyphe du bas vers le haut (visible même en rendu template de la barre de menus).
-    @State private var deployFill: CGFloat = 0
-
-    private static let deployFillAnimation = Animation
-        .easeInOut(duration: 1.1)
-        .repeatForever(autoreverses: true)
+    /// Mis à jour ~20×/s par `DeploymentMonitor` pendant `.deploying` pour forcer le redraw du label `MenuBarExtra`.
+    let deployingPulse: UInt64
 
     var body: some View {
         Group {
@@ -52,56 +77,53 @@ struct MenuBarIconView: View {
             case .deploying:
                 deployingIcon
             case .idle:
-                Image(systemName: "arrow.triangle.branch")
-                    .symbolRenderingMode(.monochrome)
-                    .foregroundStyle(Color.primary)
+                MenuBarPaletteSymbol.view(colors: [.labelColor])
             case .success:
-                Image(systemName: "arrow.triangle.branch")
-                    .symbolRenderingMode(.monochrome)
-                    .foregroundStyle(Color(nsColor: .systemGreen))
+                MenuBarPaletteSymbol.view(colors: [.systemGreen])
             case .failure:
-                Image(systemName: "arrow.triangle.branch")
-                    .symbolRenderingMode(.monochrome)
-                    .foregroundStyle(Color(nsColor: .systemRed))
+                MenuBarPaletteSymbol.view(colors: [.systemRed])
             }
         }
-        .imageScale(.medium)
-        .onAppear { syncDeployAnimationIfNeeded() }
-        .onChange(of: state) { _, _ in syncDeployAnimationIfNeeded() }
+        // `MenuBarExtra` met souvent en cache le label : l’identité change à chaque tick en déploiement
+        // pour forcer le rendu, et à chaque changement d’état pour idle / succès / échec.
+        .id(menuBarLabelIdentity)
+        .font(.system(size: 15, weight: .semibold))
+        .imageScale(.large)
+        .frame(width: 22, height: 18)
     }
 
-    /// Double calque + masque : la barre de menus applique souvent un rendu template aux SF Symbols,
-    /// ce qui aplatit les LinearGradient ; ici le « remplissage » reste lisible (contraste haut/bas).
+    private var menuBarLabelIdentity: String {
+        switch state {
+        case .deploying:
+            return "deploying-\(deployingPulse)"
+        case .idle:
+            return "idle"
+        case .success:
+            return "success"
+        case .failure:
+            return "failure"
+        }
+    }
+
+    /// `MenuBarExtra` ne rafraîchit souvent pas `TimelineView` / `symbolEffect` ; le remplissage suit
+    /// `deployingPulse` (publié depuis le moniteur) pour invalider la vue à chaque tick.
     private var deployingIcon: some View {
-        ZStack {
-            Image(systemName: "arrow.triangle.branch")
-                .symbolRenderingMode(.monochrome)
-                .foregroundStyle(Color.blue.opacity(0.28))
-            Image(systemName: "arrow.triangle.branch")
-                .symbolRenderingMode(.monochrome)
-                .foregroundStyle(Color.blue)
+        let t = Double(deployingPulse) * 0.22
+        // Remplissage bas → haut bien lisible (évite un « pulse » trop subtil).
+        let deployFill = CGFloat((sin(t) + 1) / 2) * 0.9 + 0.1
+        let accent = NSColor.controlAccentColor
+        let pale = accent.withAlphaComponent(0.45)
+        return ZStack {
+            MenuBarPaletteSymbol.view(colors: [pale])
+            MenuBarPaletteSymbol.view(colors: [accent])
                 .mask(alignment: .bottom) {
                     GeometryReader { geo in
                         Rectangle()
-                            .frame(height: max(1, geo.size.height * deployFill))
+                            .frame(height: max(2, geo.size.height * deployFill))
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                     }
                 }
         }
-        // Cadre fixe : évite que le GeometryReader du masque n’étire l’icône dans la barre de menus.
-        .frame(width: 18, height: 14)
-    }
-
-    private func syncDeployAnimationIfNeeded() {
-        if state == .deploying {
-            deployFill = 0.12
-            withAnimation(Self.deployFillAnimation) {
-                deployFill = 1
-            }
-        } else {
-            withAnimation(.default) {
-                deployFill = 0
-            }
-        }
+        .compositingGroup()
     }
 }

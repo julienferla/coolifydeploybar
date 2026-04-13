@@ -82,6 +82,23 @@ Maintainers:
 2. Create a **GitHub Release** (publish). Tag may be `v1.0.0` or `1.0.0`.
 3. Workflow [`.github/workflows/release-dmg.yml`](.github/workflows/release-dmg.yml) builds on `macos-14` and uploads **`CoolifyDeployBar-<version>.dmg`** to that release.
 
+### macOS : « CoolifyDeployBar est endommagé » après téléchargement GitHub
+
+Ce message apparaît en général quand **Gatekeeper** refuse une app **non signée avec un certificat Apple de distribution** (le DMG des releases est construit par `swift build` sans signature). Ce n’est en principe **pas** un fichier téléchargé corrompu.
+
+**À faire côté utilisateur (sans compte développeur) :**
+
+1. Montre le DMG, fais glisser **CoolifyDeployBar.app** vers **Applications** (ou un dossier de ton choix).
+2. Ouvre **Terminal** et exécute (remplace le chemin si besoin) :
+
+   ```bash
+   xattr -dr com.apple.quarantine /Applications/CoolifyDeployBar.app
+   ```
+
+3. Rouvre l’app depuis le Finder (double-clic). Si macOS bloque encore : clic droit sur l’app → **Ouvrir** → confirmer.
+
+**Correctif durable pour les releases :** signer avec **Developer ID Application** et **notariser** (Apple `notarytool` + `stapler`) dans le workflow CI ; le script `make-dmg.sh` peut signer si la variable d’environnement `CODESIGN_IDENTITY` est définie (voir commentaire en tête du script).
+
 Local DMG (Xcode / Swift notarized separately if you ship outside GitHub):
 
 ```bash

@@ -11,10 +11,18 @@ final class DeploymentMonitor: ObservableObject {
     @Published private(set) var lastUpdated: Date?
     @Published private(set) var lastError: String?
     @Published private(set) var menuBarVisual: MenuBarDeploymentVisual = .idle
+    /// Incrémenté ~20×/s pendant `.deploying` pour forcer le redraw du label `MenuBarExtra` (sinon `TimelineView` / effets restent figés).
+    @Published private(set) var menuBarDeployingPulse: UInt64 = 0
 
-    /// Évite de fusionner l’historique d’une autre app si l’UUID change pendant un chargement.
-    private var loadedApplicationUUID: String = ""
+    /// `deployment_uuid` → UUID application Coolify (pour liens web quand la ligne ne porte pas l’UUID).
+    private var deploymentToApplicationUUID: [String: String] = [:]
     private var pollTask: Task<Void, Never>?
+    private var menuBarDeployingPulseTask: Task<Void, Never>?
+
+    /// UUID des déploiements vus « en cours » au dernier recalcul (pour notifier même si l’icône barre de menus n’a pas affiché `.deploying` entre deux polls).
+    private var lastSeenInProgressDeploymentUUIDs: Set<String> = []
+    /// Évite d’envoyer plusieurs fois la même fin de déploiement à chaque rafraîchissement.
+    private var lastNotifiedFinishedDeploymentUUID: String?
 
     func startPolling(settings: AppSettings) {
         pollTask?.cancel()
@@ -30,6 +38,7 @@ final class DeploymentMonitor: ObservableObject {
     func stopPolling() {
         pollTask?.cancel()
         pollTask = nil
+        stopMenuBarDeployingPulse()
     }
 
     func refresh(settings: AppSettings) async {
@@ -38,20 +47,14 @@ final class DeploymentMonitor: ObservableObject {
             queued = []
             history = []
             historyTotal = 0
-            loadedApplicationUUID = ""
+            deploymentToApplicationUUID = [:]
             recomputeMenuBarVisual(settings: settings)
             return
         }
 
         let client = CoolifyAPIClient(baseURL: settings.baseURL, token: settings.apiToken)
-        let appId = settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines)
+        let fallbackAppUUID = settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines)
         var errors: [String] = []
-
-        if appId != loadedApplicationUUID {
-            history = []
-            historyTotal = 0
-            loadedApplicationUUID = appId
-        }
 
         var globalQueued: [DeploymentQueueItem] = []
         do {
@@ -60,36 +63,79 @@ final class DeploymentMonitor: ObservableObject {
             errors.append((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
         }
 
+        var applicationUUIDs: [String] = []
+        do {
+            applicationUUIDs = try await client.fetchApplications().map(\.uuid)
+        } catch {
+            errors.append((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
+        }
+        if applicationUUIDs.isEmpty, !fallbackAppUUID.isEmpty {
+            applicationUUIDs = [fallbackAppUUID]
+        }
+
+        deploymentToApplicationUUID = [:]
         var historyDeployments: [DeploymentQueueItem] = []
-        var historyCount = 0
-        if appId.isEmpty {
-            historyDeployments = []
-            historyCount = 0
-        } else {
-            do {
-                let h = try await client.fetchApplicationDeployments(
-                    applicationUUID: appId,
-                    skip: 0,
-                    take: Self.deploymentHistoryLimit
-                )
-                historyDeployments = h.deployments.sortedByDeploymentDateDescending()
-                historyCount = h.count
-            } catch {
-                errors.append((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
+        var historyCountSum = 0
+
+        await withTaskGroup(of: (String, Result<ApplicationDeploymentsPage, Error>).self) { group in
+            for appUUID in applicationUUIDs {
+                group.addTask {
+                    do {
+                        let page = try await client.fetchApplicationDeployments(
+                            applicationUUID: appUUID,
+                            skip: 0,
+                            take: Self.deploymentHistoryLimit
+                        )
+                        return (appUUID, .success(page))
+                    } catch {
+                        return (appUUID, .failure(error))
+                    }
+                }
+            }
+            for await (appUUID, result) in group {
+                switch result {
+                case .success(let page):
+                    historyCountSum += page.count
+                    for d in page.deployments {
+                        deploymentToApplicationUUID[d.deployment_uuid] = appUUID
+                    }
+                    historyDeployments.append(contentsOf: page.deployments)
+                case .failure(let err):
+                    errors.append((err as? LocalizedError)?.errorDescription ?? err.localizedDescription)
+                }
             }
         }
 
-        history = historyDeployments
-        historyTotal = historyCount
-        queued = Self.buildDisplayQueue(global: globalQueued, history: historyDeployments)
+        var byUUID: [String: DeploymentQueueItem] = [:]
+        for d in historyDeployments {
+            if let existing = byUUID[d.deployment_uuid] {
+                let da = d.deploymentDate ?? .distantPast
+                let db = existing.deploymentDate ?? .distantPast
+                if da >= db { byUUID[d.deployment_uuid] = d }
+            } else {
+                byUUID[d.deployment_uuid] = d
+            }
+        }
+        let mergedSorted = Array(byUUID.values).sortedByDeploymentDateDescending()
+
+        history = mergedSorted
+        historyTotal = historyCountSum
+        queued = Self.buildDisplayQueue(global: globalQueued, history: mergedSorted)
 
         lastUpdated = Date()
         lastError = errors.isEmpty ? nil : errors.joined(separator: " · ")
         recomputeMenuBarVisual(settings: settings)
     }
 
+    /// UUID d’application Coolify pour résoudre les liens (file globale ou fusion multi-apps).
+    func resolvedApplicationUUID(for item: DeploymentQueueItem, settings: AppSettings) -> String {
+        if let u = deploymentToApplicationUUID[item.deployment_uuid], !u.isEmpty { return u }
+        return settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     func recomputeMenuBarVisual(settings: AppSettings) {
         let previous = menuBarVisual
+        let priorInProgressUUIDs = lastSeenInProgressDeploymentUUIDs
         var byUUID: [String: DeploymentQueueItem] = [:]
         for item in history + queued {
             if let existing = byUUID[item.deployment_uuid] {
@@ -128,15 +174,29 @@ final class DeploymentMonitor: ObservableObject {
         }
 
         menuBarVisual = newVisual
+        if newVisual == .deploying {
+            startMenuBarDeployingPulseIfNeeded()
+        } else {
+            stopMenuBarDeployingPulse()
+        }
+
+        let currentInProgress = Set(combined.filter(\.isBuildInProgress).map(\.deployment_uuid))
+        lastSeenInProgressDeploymentUUIDs = currentInProgress
 
         let notifyEnabled = settings.notifyOnDeploymentComplete
+        let finishedUUID = completedItem?.deployment_uuid
+        let emergedFromTrackedProgress = finishedUUID.map { priorInProgressUUIDs.contains($0) } ?? false
         let shouldNotify = notifyEnabled
-            && previous == .deploying
             && (newVisual == .success || newVisual == .failure)
+            && completedItem != nil
+            && (previous == .deploying || emergedFromTrackedProgress)
+            && finishedUUID != lastNotifiedFinishedDeploymentUUID
+
         if shouldNotify, let item = completedItem {
+            lastNotifiedFinishedDeploymentUUID = item.deployment_uuid
             let baseURL = settings.baseURL
             let token = settings.apiToken
-            let appUUID = settings.applicationUUID.trimmingCharacters(in: .whitespacesAndNewlines)
+            let appUUID = resolvedApplicationUUID(for: item, settings: settings)
             Task { @MainActor in
                 let client = CoolifyAPIClient(baseURL: baseURL, token: token)
                 let url = await CoolifyDeploymentURLResolver.resolveAsync(
@@ -145,7 +205,6 @@ final class DeploymentMonitor: ObservableObject {
                     selectedApplicationUUID: appUUID
                 )
                 await DeployNotificationService.postCompletionIfNeeded(
-                    from: previous,
                     to: newVisual,
                     completedItem: item,
                     notifyEnabled: notifyEnabled,
@@ -153,6 +212,23 @@ final class DeploymentMonitor: ObservableObject {
                 )
             }
         }
+    }
+
+    private func startMenuBarDeployingPulseIfNeeded() {
+        guard menuBarDeployingPulseTask == nil else { return }
+        menuBarDeployingPulseTask = Task { @MainActor in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 50_000_000)
+                guard menuBarVisual == .deploying else { break }
+                menuBarDeployingPulse &+= 1
+            }
+            menuBarDeployingPulseTask = nil
+        }
+    }
+
+    private func stopMenuBarDeployingPulse() {
+        menuBarDeployingPulseTask?.cancel()
+        menuBarDeployingPulseTask = nil
     }
 
     /// File affichée : endpoint global `/deployments` + entrées **en cours** présentes seulement dans l’historique app (ex. `running:starting`).

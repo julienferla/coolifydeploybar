@@ -24,7 +24,19 @@ struct SettingsView: View {
             .frame(maxWidth: 560, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .center)
         }
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(
+            ZStack {
+                Color(nsColor: .windowBackgroundColor)
+                LinearGradient(
+                    colors: [
+                        Color.blue.opacity(0.045),
+                        Color.clear,
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        )
         .task {
             await checkGitHubRelease(userInitiated: false)
         }
@@ -38,11 +50,21 @@ struct SettingsView: View {
                 Image(systemName: "arrow.triangle.branch")
                     .font(.system(size: 40))
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(.tint)
+                    .foregroundStyle(
+                        .linearGradient(
+                            colors: [Color(red: 0.2, green: 0.45, blue: 1.0), Color(red: 0.35, green: 0.65, blue: 1.0)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .frame(width: 48, height: 48)
                     .background {
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
                             .fill(.quaternary.opacity(0.6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .strokeBorder(Color.blue.opacity(0.18), lineWidth: 1)
+                            )
                     }
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -136,9 +158,13 @@ struct SettingsView: View {
                     Text("UUID application")
                 }
 
-                Text("Utilisé pour l’historique des déploiements dans la barre de menu.")
+                Text(
+                    "Facultatif : sert surtout à ouvrir Coolify dans le navigateur quand l’API ne renvoie pas l’UUID application. "
+                        + "La liste dans la barre regroupe toutes les applications détectées sur le serveur."
+                )
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 LabeledContent {
                     Stepper(value: $settings.pollIntervalSeconds, in: 5 ... 600, step: 5) {

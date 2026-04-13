@@ -3,6 +3,7 @@
 .swiftpm/
 xcuserdata/
 DerivedData/
+.derivedData/
 
 # Release artifacts (Makefile / scripts/make-dmg.sh)
 dist/
@@ -16,3 +17,6 @@ build/
 .env
 .env.*
 !.env.example
+
+# Optional: personal overrides not committed (uncomment in project.yml if you use this)
+# project.user.yml
