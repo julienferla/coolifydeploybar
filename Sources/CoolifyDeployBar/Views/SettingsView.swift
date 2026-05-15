@@ -12,6 +12,13 @@ struct SettingsView: View {
     @State private var hasNewerRelease = false
     @State private var isCheckingRelease = false
 
+    /// Orange si une mise à jour est dispo, rouge si le fetch a échoué (status sans tag), secondaire sinon.
+    private var releaseStatusColor: Color {
+        if hasNewerRelease { return .orange }
+        if releaseTag == nil { return .red }
+        return .secondary
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
@@ -74,12 +81,12 @@ struct SettingsView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
 
+                    if let releaseStatus {
+                        Text(releaseStatus)
+                            .font(.caption)
+                            .foregroundStyle(releaseStatusColor)
+                    }
                     if let tag = releaseTag {
-                        if let releaseStatus {
-                            Text(releaseStatus)
-                                .font(.caption)
-                                .foregroundStyle(hasNewerRelease ? Color.orange : .secondary)
-                        }
                         Text("Dernière release GitHub : \(tag)")
                             .font(.caption2)
                             .foregroundStyle(.tertiary)

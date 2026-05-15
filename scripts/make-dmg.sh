@@ -50,6 +50,9 @@ build_dmg_from_app() {
 	mkdir -p "$STAGE"
 	ditto "$app_src" "$APP_PATH"
 
+	# Lien vers /Applications dans le DMG pour le glisser-déposer classique macOS.
+	ln -s /Applications "$STAGE/Applications"
+
 	mkdir -p "$ROOT/dist"
 	local DMG="$ROOT/dist/CoolifyDeployBar-${VERSION}.dmg"
 	rm -f "$DMG"
@@ -120,6 +123,7 @@ rm -rf "$STAGE"
 mkdir -p "$APP_PATH/Contents/MacOS"
 
 echo "==> Assemble $APP_NAME (unsigned bundle)"
+mkdir -p "$APP_PATH/Contents/Resources"
 cp "$EXEC" "$APP_PATH/Contents/MacOS/CoolifyDeployBar"
 chmod +x "$APP_PATH/Contents/MacOS/CoolifyDeployBar"
 
@@ -127,16 +131,43 @@ cp "$ROOT/Packaging/Info.plist" "$APP_PATH/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP_PATH/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" "$APP_PATH/Contents/Info.plist"
 
+# Catalogue d'assets (AppIcon) : sans cette étape, le bundle n'a pas d'icône
+# dans Finder / Dock / Launchpad. Reproduit ce que fait xcodebuild en interne.
+ACTOOL_PARTIAL="$DERIVED/actool-partial.plist"
+echo "==> actool: compile Assets.xcassets -> Resources/Assets.car (+ AppIcon)"
+xcrun actool \
+	--compile "$APP_PATH/Contents/Resources" \
+	--platform macosx \
+	--minimum-deployment-target 14.0 \
+	--app-icon AppIcon \
+	--output-partial-info-plist "$ACTOOL_PARTIAL" \
+	--compress-pngs \
+	"$ROOT/Resources/Assets.xcassets" >/dev/null
+
+# Clés d'icône attendues par le Finder / launchd (actool les écrit dans son
+# partial plist, on les recopie dans l'Info.plist final).
+/usr/libexec/PlistBuddy -c "Delete :CFBundleIconFile" "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+/usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string AppIcon" "$APP_PATH/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+/usr/libexec/PlistBuddy -c "Add :CFBundleIconName string AppIcon" "$APP_PATH/Contents/Info.plist"
+
 if [[ -n "${CODESIGN_IDENTITY:-}" ]]; then
 	echo "==> codesign (identity: $CODESIGN_IDENTITY)"
 	codesign --force --deep --options runtime --sign "$CODESIGN_IDENTITY" "$APP_PATH"
 else
-	echo "==> codesign skipped (set CODESIGN_IDENTITY for ad-hoc/Developer ID on this path)"
+	# Ad-hoc sign : nécessaire pour Hardened Runtime et pour éviter certains
+	# rejets Gatekeeper sur Sequoia. Ne remplace pas une vraie signature
+	# Developer ID + notarisation pour le téléchargement public.
+	echo "==> codesign ad-hoc (sans Developer ID)"
+	codesign --force --deep --options runtime --sign - "$APP_PATH"
 fi
 
 mkdir -p "$ROOT/dist"
 DMG="$ROOT/dist/CoolifyDeployBar-${VERSION}.dmg"
 rm -f "$DMG"
+
+# Lien vers /Applications dans le DMG pour le glisser-déposer classique macOS.
+ln -s /Applications "$STAGE/Applications"
 
 echo "==> hdiutil -> $DMG"
 hdiutil create \
