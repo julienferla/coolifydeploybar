@@ -1,5 +1,7 @@
 # CoolifyDeployBar
 
+![Coolify Deploy Bar - popover macOS affichant les déploiements récents](docs/hero.png)
+
 [![GitHub — repository](https://img.shields.io/badge/GitHub-repository-181717?style=flat&logo=github)](https://github.com/julienferla/coolifydeploybar)
 [![GitHub Releases](https://img.shields.io/github/v/release/julienferla/coolifydeploybar?logo=github&label=Releases&color=blue)](https://github.com/julienferla/coolifydeploybar/releases)
 [![Latest DMG](https://img.shields.io/badge/Download-latest%20DMG-181717?style=flat&logo=apple)](https://github.com/julienferla/coolifydeploybar/releases/latest)
@@ -12,7 +14,7 @@
 ## Features
 
 - **Deployment queue** — polls Coolify HTTP API v1 for queued / in-progress deployments
-- **Settings** — base URL (e.g. `https://coolify.example.com`) and API token (stored in UserDefaults)
+- **Settings** — base URL (e.g. `https://coolify.example.com`) and API token (stored in the macOS Keychain)
 - **Menu bar** — `MenuBarExtra` popover + system Settings scene for configuration
 
 ## Requirements

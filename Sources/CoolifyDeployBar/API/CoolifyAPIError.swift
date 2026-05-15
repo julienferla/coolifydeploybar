@@ -2,6 +2,7 @@ import Foundation
 
 enum CoolifyAPIError: LocalizedError {
     case invalidBaseURL
+    case insecureScheme
     case invalidResponse(statusCode: Int, body: String?)
     case decoding(Error)
     case transport(Error)
@@ -10,6 +11,9 @@ enum CoolifyAPIError: LocalizedError {
         switch self {
         case .invalidBaseURL:
             return "URL de base invalide. Exemple : https://coolify.example.com"
+        case .insecureScheme:
+            return "URL en http:// non sécurisée. Le token Bearer partirait en clair sur le réseau. "
+                + "Utilisez https:// (ou http:// uniquement vers localhost / IP privée / .local)."
         case let .invalidResponse(code, body):
             if code == 401 {
                 let hint =

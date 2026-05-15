@@ -137,7 +137,7 @@ struct SettingsView: View {
                     Text("Token API")
                 }
 
-                Text("Sans préfixe « Bearer » — uniquement la valeur du secret.")
+                Text("Sans préfixe « Bearer », uniquement la valeur du secret. Stocké dans le Keychain macOS.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

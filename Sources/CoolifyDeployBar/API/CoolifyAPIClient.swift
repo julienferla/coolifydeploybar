@@ -23,6 +23,7 @@ struct CoolifyAPIClient: Sendable {
         while trimmed.hasSuffix("/") {
             trimmed.removeLast()
         }
+        try Self.rejectInsecureURL(trimmed)
         if trimmed.hasSuffix("/api/v1") {
             guard let u = URL(string: trimmed) else { throw CoolifyAPIError.invalidBaseURL }
             return u
@@ -33,6 +34,31 @@ struct CoolifyAPIClient: Sendable {
         }
         guard let u = URL(string: trimmed + "/api/v1") else { throw CoolifyAPIError.invalidBaseURL }
         return u
+    }
+
+    /// Refuse `http://` vers un hôte public. Autorise loopback, `.local`/`.lan`/`.internal`/`.test`,
+    /// et tout littéral IP (IPv4/IPv6) pour couvrir VPN, Tailscale et réseaux LAN.
+    private static func rejectInsecureURL(_ raw: String) throws {
+        guard let parsed = URL(string: raw) else { throw CoolifyAPIError.invalidBaseURL }
+        guard parsed.scheme?.lowercased() == "http" else { return }
+        guard isHTTPAllowedHost(parsed.host) else { throw CoolifyAPIError.insecureScheme }
+    }
+
+    private static func isHTTPAllowedHost(_ host: String?) -> Bool {
+        guard let raw = host?.lowercased(), !raw.isEmpty else { return false }
+        if raw == "localhost" { return true }
+        if raw.hasSuffix(".localhost") { return true }
+        if raw.hasSuffix(".local") { return true }
+        if raw.hasSuffix(".lan") { return true }
+        if raw.hasSuffix(".internal") { return true }
+        if raw.hasSuffix(".test") { return true }
+        if raw.range(of: #"^\d{1,3}(\.\d{1,3}){3}$"#, options: .regularExpression) != nil {
+            return true
+        }
+        if raw.contains(":") {
+            return true
+        }
+        return false
     }
 
     private func request(path: String, query: [URLQueryItem] = []) async throws -> (Data, HTTPURLResponse) {

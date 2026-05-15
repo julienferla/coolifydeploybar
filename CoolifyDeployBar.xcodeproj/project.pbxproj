@@ -15,6 +15,7 @@
 		3E7646D7277D8DA4C5BFD508 /* MenuBarIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1EE399D53A6E2807F236427 /* MenuBarIconView.swift */; };
 		43F4D69621B6BE773B504C6F /* DeploymentMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2872EABA79766FB5595136F5 /* DeploymentMenuView.swift */; };
 		4FDF028268A93B95723D1062 /* CoolifyDeployBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27D82537334FA1C141D6C4E /* CoolifyDeployBarApp.swift */; };
+		51ABA0CEADA96AC4A648BA51 /* KeychainTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8552FE6592737EA7E12285F0 /* KeychainTokenStore.swift */; };
 		5A9CC9DA81AD688E4E592D4A /* CoolifyAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D0324502215E49A789656A /* CoolifyAPIError.swift */; };
 		6406E4376E3558497373A42E /* DeploymentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C1E09BB88F35FDF6A0E22F /* DeploymentModels.swift */; };
 		73D97440DE32293A420DFCD4 /* ApplicationSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F98A00B1B31E79433DC0D3D /* ApplicationSummary.swift */; };
@@ -31,6 +32,7 @@
 		4EA5E2F6761C48D0E4870FDA /* DeployNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeployNotificationService.swift; sourceTree = "<group>"; };
 		6AF7389E1D4FEA23774307CD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		80E65D30637663E7E2E717D8 /* CoolifyAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolifyAPIClient.swift; sourceTree = "<group>"; };
+		8552FE6592737EA7E12285F0 /* KeychainTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTokenStore.swift; sourceTree = "<group>"; };
 		9A3A45D1A38776528DFAB563 /* GitHubReleaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubReleaseService.swift; sourceTree = "<group>"; };
 		9C0B51CBCC2882D08C865BF6 /* CoolifyDeployBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoolifyDeployBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F98A00B1B31E79433DC0D3D /* ApplicationSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSummary.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 				A3828B3013EE3C2CCFB50778 /* DeploymentMonitor.swift */,
 				4EA5E2F6761C48D0E4870FDA /* DeployNotificationService.swift */,
 				9A3A45D1A38776528DFAB563 /* GitHubReleaseService.swift */,
+				8552FE6592737EA7E12285F0 /* KeychainTokenStore.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -227,6 +230,7 @@
 				6406E4376E3558497373A42E /* DeploymentModels.swift in Sources */,
 				A95AB227491763D1F4B42D9C /* DeploymentMonitor.swift in Sources */,
 				37C1581321E3B9BA45FE3A22 /* GitHubReleaseService.swift in Sources */,
+				51ABA0CEADA96AC4A648BA51 /* KeychainTokenStore.swift in Sources */,
 				3E7646D7277D8DA4C5BFD508 /* MenuBarIconView.swift in Sources */,
 				A631E09F428F3C962324C6A4 /* SettingsView.swift in Sources */,
 				D925C006FF8C95C269CA4D6F /* SettingsWindowPresenter.swift in Sources */,
@@ -310,7 +314,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -329,7 +333,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -375,7 +379,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -388,7 +392,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
