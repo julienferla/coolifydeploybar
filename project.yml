@@ -12,8 +12,8 @@ options:
 
 settings:
   base:
-    MARKETING_VERSION: "1.0.5"
-    CURRENT_PROJECT_VERSION: "7"
+    MARKETING_VERSION: "1.0.6"
+    CURRENT_PROJECT_VERSION: "8"
 
 targets:
   CoolifyDeployBar:
@@ -24,6 +24,12 @@ targets:
       # XcodeGen 2.45.3 n'ajoute pas toujours PBXResourcesBuildPhase avec `resources:` seul ;
       # forcer le catalogue dans la phase « Copy Bundle Resources » (actool → AppIcon).
       - path: Resources/Assets.xcassets
+        buildPhase: resources
+      # Localizable.strings par langue (en, fr). XcodeGen détecte les *.lproj et les place
+      # automatiquement dans la phase resources avec le bon mappage de variant group.
+      - path: Resources/en.lproj
+        buildPhase: resources
+      - path: Resources/fr.lproj
         buildPhase: resources
     settings:
       base:

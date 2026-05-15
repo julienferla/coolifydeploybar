@@ -24,7 +24,7 @@ enum SettingsWindowPresenter {
             backing: .buffered,
             defer: false
         )
-        w.title = "Réglages — Coolify Deploy Bar"
+        w.title = String(localized: "Réglages · Coolify Deploy Bar")
         w.contentView = makeHostingView(settings: settings)
         w.isReleasedWhenClosed = false
         w.delegate = delegate

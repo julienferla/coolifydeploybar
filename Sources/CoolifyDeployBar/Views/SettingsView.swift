@@ -165,10 +165,7 @@ struct SettingsView: View {
                     Text("UUID application")
                 }
 
-                Text(
-                    "Facultatif : sert surtout à ouvrir Coolify dans le navigateur quand l’API ne renvoie pas l’UUID application. "
-                        + "La liste dans la barre regroupe toutes les applications détectées sur le serveur."
-                )
+                Text("Facultatif : sert surtout à ouvrir Coolify dans le navigateur quand l’API ne renvoie pas l’UUID application. La liste dans la barre regroupe toutes les applications détectées sur le serveur.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -211,7 +208,7 @@ struct SettingsView: View {
                         .padding(.vertical, 4)
                     LabeledContent {
                         Picker("", selection: $settings.applicationUUID) {
-                            Text("— Aucune —").tag("")
+                            Text("- Aucune -").tag("")
                             ForEach(applications) { app in
                                 Text("\(app.name) (\(String(app.uuid.prefix(8)))…)")
                                     .tag(app.uuid)
@@ -234,10 +231,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Notifier à la fin d’un déploiement")
                         .font(.body.weight(.medium))
-                    Text(
-                        "Une notification macOS lorsque Coolify signale la fin d’un build "
-                            + "(succès ou échec), pas pendant l’exécution."
-                    )
+                    Text("Une notification macOS lorsque Coolify signale la fin d’un build (succès ou échec), pas pendant l’exécution.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

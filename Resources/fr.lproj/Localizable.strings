@@ -1,0 +1,4 @@
+/* CoolifyDeployBar - French localization
+   Cette langue est le langage source (les clés sont les chaînes françaises).
+   Ce fichier existe pour déclarer explicitement le support fr aux APIs Bundle.
+*/

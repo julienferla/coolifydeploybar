@@ -19,8 +19,8 @@ enum GitHubReleaseService {
 
         var errorDescription: String? {
             switch self {
-            case .invalidResponse(let code): return "HTTP \(code)"
-            case .noData: return "Réponse vide"
+            case .invalidResponse(let code): return String(localized: "HTTP \(code)")
+            case .noData: return String(localized: "Réponse vide")
             }
         }
     }

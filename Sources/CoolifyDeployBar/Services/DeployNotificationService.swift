@@ -11,7 +11,7 @@ enum DeployNotificationService {
     static func registerNotificationCategories() {
         let open = UNNotificationAction(
             identifier: actionOpenCoolify,
-            title: "Ouvrir dans Coolify",
+            title: String(localized: "Ouvrir dans Coolify"),
             options: [.foreground]
         )
         let cat = UNNotificationCategory(
@@ -48,11 +48,11 @@ enum DeployNotificationService {
         let titleApp = (appName?.isEmpty == false) ? appName! : "Coolify Deploy Bar"
 
         if newVisual == .success {
-            content.title = "Déploiement terminé"
+            content.title = String(localized: "Déploiement terminé")
             content.subtitle = titleApp
             content.body = bodyLine(for: completedItem, success: true)
         } else {
-            content.title = "Déploiement en échec"
+            content.title = String(localized: "Déploiement en échec")
             content.subtitle = titleApp
             content.body = bodyLine(for: completedItem, success: false)
         }
@@ -72,20 +72,22 @@ enum DeployNotificationService {
 
     private static func bodyLine(for item: DeploymentQueueItem?, success: Bool) -> String {
         guard let item else {
-            return success ? "Le build s’est terminé avec succès." : "Le build s’est terminé en erreur."
+            return success
+                ? String(localized: "Le build s’est terminé avec succès.")
+                : String(localized: "Le build s’est terminé en erreur.")
         }
         var parts: [String] = []
         if let c = item.commit?.trimmingCharacters(in: .whitespacesAndNewlines), !c.isEmpty {
             let short = String(c.prefix(7))
-            parts.append("Commit \(short)")
+            parts.append(String(localized: "Commit \(short)"))
         }
         if let msg = item.commit_message?.trimmingCharacters(in: .whitespacesAndNewlines), !msg.isEmpty {
             let clipped = msg.count > 120 ? String(msg.prefix(117)) + "…" : msg
             parts.append(clipped)
         }
         if parts.isEmpty {
-            parts.append("Statut : \(item.status)")
+            parts.append(String(localized: "Statut : \(item.status)"))
         }
-        return parts.joined(separator: " — ")
+        return parts.joined(separator: " · ")
     }
 }

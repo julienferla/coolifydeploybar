@@ -43,7 +43,7 @@ final class DeploymentMonitor: ObservableObject {
 
     func refresh(settings: AppSettings) async {
         guard settings.isConfigured else {
-            lastError = "Configure l’URL et le token dans Réglages."
+            lastError = String(localized: "Configure l’URL et le token dans Réglages.")
             queued = []
             history = []
             historyTotal = 0

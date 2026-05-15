@@ -144,6 +144,15 @@ xcrun actool \
 	--compress-pngs \
 	"$ROOT/Resources/Assets.xcassets" >/dev/null
 
+# Localizations (en, fr, …). Bundle.main lit les .strings dans <lang>.lproj/
+# pour la résolution des LocalizedStringKey de SwiftUI. Sans cette copie, la
+# détection automatique de langue ne fait rien et l'UI reste en français.
+for LPROJ in "$ROOT/Resources"/*.lproj; do
+	[[ -d "$LPROJ" ]] || continue
+	echo "==> copy $(basename "$LPROJ")"
+	cp -R "$LPROJ" "$APP_PATH/Contents/Resources/"
+done
+
 # Clés d'icône attendues par le Finder / launchd (actool les écrit dans son
 # partial plist, on les recopie dans l'Info.plist final).
 /usr/libexec/PlistBuddy -c "Delete :CFBundleIconFile" "$APP_PATH/Contents/Info.plist" 2>/dev/null || true

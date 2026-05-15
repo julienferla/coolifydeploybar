@@ -1,0 +1,87 @@
+/* CoolifyDeployBar - English localization
+   Key = French source string (used directly as LocalizedStringKey in SwiftUI).
+   Value = English translation.
+   The source uses curly apostrophes (’), keys must match character-for-character.
+*/
+
+/* DeploymentMenuView: popover header and timeline */
+"Aucun déploiement à afficher pour le moment." = "No deployments to display right now.";
+"%lld déploiements récents (toutes apps) · %lld enregistrements côté API (cumul)" = "%lld recent deployments (all apps) · %lld API records (total)";
+"Dernier déploiement" = "Last deployment";
+"Lancé" = "Started";
+"Durée" = "Duration";
+"Heure de lancement inconnue" = "Start time unknown";
+"Application" = "Application";
+
+/* Elapsed time formats */
+"%d h %02d min %02d s" = "%dh %02dm %02ds";
+"%d min %02d s" = "%dm %02ds";
+"%d s" = "%ds";
+
+/* DeploymentMenuView: footer buttons */
+"Actualiser" = "Refresh";
+"Réglages…" = "Settings…";
+"Quitter l’application" = "Quit the app";
+
+/* DeploymentMenuView: open in Coolify link */
+"Ouvrir dans Coolify" = "Open in Coolify";
+"Ouvre la page du déploiement ou de l’application dans Coolify" = "Opens the deployment or application page in Coolify";
+
+/* SettingsView: application section */
+"Vérification…" = "Checking…";
+"Vérifier les mises à jour" = "Check for updates";
+"Télécharger la mise à jour" = "Download update";
+"Voir sur GitHub" = "View on GitHub";
+"Une mise à jour est disponible." = "An update is available.";
+"Vous utilisez la dernière version publiée sur GitHub." = "You are on the latest version published on GitHub.";
+"Dernière release GitHub : %@" = "Latest GitHub release: %@";
+"Version %@ (%@)" = "Version %@ (%@)";
+
+/* SettingsView: connection section */
+"Connexion Coolify" = "Coolify connection";
+"URL du serveur" = "Server URL";
+"Token API" = "API token";
+"Collez votre token API" = "Paste your API token";
+"Sans préfixe « Bearer », uniquement la valeur du secret. Stocké dans le Keychain macOS." = "No 'Bearer' prefix, just the secret value. Stored in the macOS Keychain.";
+
+/* SettingsView: monitoring section */
+"Surveillance" = "Monitoring";
+"UUID application" = "Application UUID";
+"UUID de l’application Coolify" = "Coolify application UUID";
+"Facultatif : sert surtout à ouvrir Coolify dans le navigateur quand l’API ne renvoie pas l’UUID application. La liste dans la barre regroupe toutes les applications détectées sur le serveur." = "Optional: mainly used to open Coolify in the browser when the API does not return the application UUID. The menu lists all applications detected on the server.";
+"Intervalle de rafraîchissement" = "Refresh interval";
+"%lld s" = "%lld s";
+"Charger les applications" = "Load applications";
+"- Aucune -" = "- None -";
+"Choisir dans la liste" = "Pick from list";
+
+/* SettingsView: notifications section */
+"Notifications" = "Notifications";
+"Notifier à la fin d’un déploiement" = "Notify when a deployment finishes";
+"Une notification macOS lorsque Coolify signale la fin d’un build (succès ou échec), pas pendant l’exécution." = "A macOS notification when Coolify signals the end of a build (success or failure), not during execution.";
+
+/* SettingsWindowPresenter */
+"Réglages · Coolify Deploy Bar" = "Settings · Coolify Deploy Bar";
+
+/* DeployNotificationService: notification content */
+"Déploiement terminé" = "Deployment finished";
+"Déploiement en échec" = "Deployment failed";
+"Le build s’est terminé avec succès." = "The build finished successfully.";
+"Le build s’est terminé en erreur." = "The build finished with an error.";
+"Commit %@" = "Commit %@";
+"Statut : %@" = "Status: %@";
+
+/* CoolifyAPIError: surfaced error messages */
+"URL de base invalide. Exemple : https://coolify.example.com" = "Invalid base URL. Example: https://coolify.example.com";
+"URL en http:// non sécurisée. Le token Bearer partirait en clair sur le réseau. Utilisez https:// (ou http:// uniquement vers localhost / IP privée / .local)." = "Insecure http:// URL. The Bearer token would travel in clear over the network. Use https:// (or http:// only for localhost / private IP / .local).";
+"Non autorisé (401). Vérifiez : l’URL est l’origine de l’instance (ex. https://coolify.example.com, sans /dashboard) ; le jeton vient de Coolify → Keys & Tokens → API tokens ; ne collez pas le mot « Bearer » devant le jeton (l’app l’ajoute) ; pas d’espace en trop." = "Unauthorized (401). Check: the URL is the instance origin (e.g. https://coolify.example.com, without /dashboard); the token comes from Coolify → Keys & Tokens → API tokens; do not paste the word 'Bearer' before the token (the app adds it); no extra whitespace.";
+"%@ Réponse : %@" = "%@ Response: %@";
+"HTTP %lld : %@" = "HTTP %lld: %@";
+"HTTP %lld" = "HTTP %lld";
+"Réponse JSON inattendue : %@" = "Unexpected JSON response: %@";
+
+/* DeploymentMonitor */
+"Configure l’URL et le token dans Réglages." = "Configure the URL and token in Settings.";
+
+/* GitHubReleaseService */
+"Réponse vide" = "Empty response";
