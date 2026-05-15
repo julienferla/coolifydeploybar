@@ -11,6 +11,20 @@
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue) ![Swift 5.9](https://img.shields.io/badge/Swift-5.9-orange) ![License MIT](https://img.shields.io/badge/license-MIT-green)
 
+## Premier lancement / First launch
+
+> macOS will show **"CoolifyDeployBar is damaged"** the first time you open it. This is Gatekeeper refusing an unsigned app, not a corrupted file. The DMG is not signed with an Apple Developer ID (no $99/year subscription on this project).
+
+**Once after install**, run this in Terminal :
+
+```bash
+xattr -dr com.apple.quarantine /Applications/CoolifyDeployBar.app
+```
+
+Then open the app normally. Subsequent launches work without warning.
+
+Alternative without Terminal : right-click on the app in Finder → **Open** → confirm in the dialog.
+
 ## Features
 
 - **Deployment queue** — polls Coolify HTTP API v1 for queued / in-progress deployments
@@ -84,22 +98,13 @@ Maintainers:
 2. Create a **GitHub Release** (publish). Tag may be `v1.0.0` or `1.0.0`.
 3. Workflow [`.github/workflows/release-dmg.yml`](.github/workflows/release-dmg.yml) builds on `macos-14` and uploads **`CoolifyDeployBar-<version>.dmg`** to that release.
 
-### macOS : « CoolifyDeployBar est endommagé » après téléchargement GitHub
+### Gatekeeper : signature et notarisation (maintainers)
 
-Ce message apparaît en général quand **Gatekeeper** refuse une app **non signée avec un certificat Apple de distribution** (le DMG des releases est construit par `swift build` sans signature). Ce n’est en principe **pas** un fichier téléchargé corrompu.
+Pour supprimer définitivement l’avertissement « endommagé » côté utilisateur (voir [Premier lancement](#premier-lancement--first-launch) en haut du README), il faut un compte Apple Developer Program et la notarisation Apple :
 
-**À faire côté utilisateur (sans compte développeur) :**
-
-1. Montre le DMG, fais glisser **CoolifyDeployBar.app** vers **Applications** (ou un dossier de ton choix).
-2. Ouvre **Terminal** et exécute (remplace le chemin si besoin) :
-
-   ```bash
-   xattr -dr com.apple.quarantine /Applications/CoolifyDeployBar.app
-   ```
-
-3. Rouvre l’app depuis le Finder (double-clic). Si macOS bloque encore : clic droit sur l’app → **Ouvrir** → confirmer.
-
-**Correctif durable pour les releases :** signer avec **Developer ID Application** et **notariser** (Apple `notarytool` + `stapler`) dans le workflow CI ; le script `make-dmg.sh` peut signer si la variable d’environnement `CODESIGN_IDENTITY` est définie (voir commentaire en tête du script).
+1. Signer avec **Developer ID Application** : le script `make-dmg.sh` signe automatiquement si la variable d’environnement `CODESIGN_IDENTITY` est définie.
+2. Notariser via Apple `notarytool` puis attacher le ticket avec `stapler`.
+3. Brancher tout ça dans le workflow CI (secrets GitHub : certificat .p12, mot de passe app-specific, Team ID).
 
 Local DMG (Xcode / Swift notarized separately if you ship outside GitHub):
 
