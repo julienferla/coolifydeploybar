@@ -3,16 +3,21 @@ import SwiftUI
 
 @MainActor
 final class DeploymentMonitor: ObservableObject {
-    /// Nombre max de déploiements demandés à l’API (pas de pagination au-delà).
-    static let deploymentHistoryLimit = 10
+    /// Première page : peu d’entrées pour alléger API + rendu ; « Charger plus » augmente par paliers.
+    static let deploymentHistoryInitialTake = 5
+    static let deploymentHistoryTakeStep = 5
+    static let deploymentHistoryTakeMax = 40
+
+    let menuBarPulseDriver = MenuBarPulseDriver()
+
     @Published private(set) var queued: [DeploymentQueueItem] = []
     @Published private(set) var history: [DeploymentQueueItem] = []
     @Published private(set) var historyTotal: Int = 0
     @Published private(set) var lastUpdated: Date?
     @Published private(set) var lastError: String?
     @Published private(set) var menuBarVisual: MenuBarDeploymentVisual = .idle
-    /// Incrémenté ~20×/s pendant `.deploying` pour forcer le redraw du label `MenuBarExtra` (sinon `TimelineView` / effets restent figés).
-    @Published private(set) var menuBarDeployingPulse: UInt64 = 0
+    /// Taille actuelle de la fenêtre `take` par application (montée via `loadMoreHistoryFromAPI`).
+    @Published private(set) var deploymentHistoryTakePerApp: Int = DeploymentMonitor.deploymentHistoryInitialTake
 
     /// `deployment_uuid` → UUID application Coolify (pour liens web quand la ligne ne porte pas l’UUID).
     private var deploymentToApplicationUUID: [String: String] = [:]
@@ -48,6 +53,7 @@ final class DeploymentMonitor: ObservableObject {
             history = []
             historyTotal = 0
             deploymentToApplicationUUID = [:]
+            deploymentHistoryTakePerApp = Self.deploymentHistoryInitialTake
             recomputeMenuBarVisual(settings: settings)
             return
         }
@@ -76,6 +82,7 @@ final class DeploymentMonitor: ObservableObject {
         deploymentToApplicationUUID = [:]
         var historyDeployments: [DeploymentQueueItem] = []
         var historyCountSum = 0
+        let historyTake = deploymentHistoryTakePerApp
 
         await withTaskGroup(of: (String, Result<ApplicationDeploymentsPage, Error>).self) { group in
             for appUUID in applicationUUIDs {
@@ -84,7 +91,7 @@ final class DeploymentMonitor: ObservableObject {
                         let page = try await client.fetchApplicationDeployments(
                             applicationUUID: appUUID,
                             skip: 0,
-                            take: Self.deploymentHistoryLimit
+                            take: historyTake
                         )
                         return (appUUID, .success(page))
                     } catch {
@@ -125,6 +132,16 @@ final class DeploymentMonitor: ObservableObject {
         lastUpdated = Date()
         lastError = errors.isEmpty ? nil : errors.joined(separator: " · ")
         recomputeMenuBarVisual(settings: settings)
+    }
+
+    /// Augmente la fenêtre `take` côté API (par paliers) puis recharge l’historique.
+    func loadMoreHistoryFromAPI(settings: AppSettings) async {
+        guard deploymentHistoryTakePerApp < Self.deploymentHistoryTakeMax else { return }
+        deploymentHistoryTakePerApp = min(
+            deploymentHistoryTakePerApp + Self.deploymentHistoryTakeStep,
+            Self.deploymentHistoryTakeMax
+        )
+        await refresh(settings: settings)
     }
 
     /// UUID d’application Coolify pour résoudre les liens (file globale ou fusion multi-apps).
@@ -220,7 +237,7 @@ final class DeploymentMonitor: ObservableObject {
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 50_000_000)
                 guard menuBarVisual == .deploying else { break }
-                menuBarDeployingPulse &+= 1
+                menuBarPulseDriver.tick()
             }
             menuBarDeployingPulseTask = nil
         }

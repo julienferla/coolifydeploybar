@@ -43,6 +43,7 @@ enum MenuBarDeploymentVisual: Equatable {
 struct MenuBarLabelView: View {
     @ObservedObject var settings: AppSettings
     @ObservedObject var monitor: DeploymentMonitor
+    @ObservedObject var pulseDriver: MenuBarPulseDriver
 
     private var connectionFingerprint: String {
         settings.baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -50,7 +51,7 @@ struct MenuBarLabelView: View {
     }
 
     var body: some View {
-        MenuBarIconView(state: monitor.menuBarVisual, deployingPulse: monitor.menuBarDeployingPulse)
+        MenuBarIconView(state: monitor.menuBarVisual, deployingPulse: pulseDriver.value)
             .accessibilityLabel("Coolify Deploy Bar")
             .task(id: connectionFingerprint) {
                 guard settings.isConfigured else {
@@ -67,8 +68,11 @@ struct MenuBarLabelView: View {
 }
 
 struct MenuBarIconView: View {
+    /// ~50 ms × 72 ≈ 3,6 s pour un cycle complet bas → haut puis recommence.
+    private static let deployFillCycleTicks: UInt64 = 72
+
     let state: MenuBarDeploymentVisual
-    /// Mis à jour ~20×/s par `DeploymentMonitor` pendant `.deploying` pour forcer le redraw du label `MenuBarExtra`.
+    /// Mis à jour ~20×/s via `MenuBarPulseDriver` pendant `.deploying` pour forcer le redraw du label `MenuBarExtra`.
     let deployingPulse: UInt64
 
     var body: some View {
@@ -107,15 +111,17 @@ struct MenuBarIconView: View {
 
     /// `MenuBarExtra` ne rafraîchit souvent pas `TimelineView` / `symbolEffect` ; le remplissage suit
     /// `deployingPulse` (publié depuis le moniteur) pour invalider la vue à chaque tick.
+    ///
+    /// Bleu bien visible + progression **linéaire** bas → haut (type upload), pas un sinus
+    /// (qui restait trop long en « mi-niveau » et lisait comme gris avec `controlAccentColor`).
     private var deployingIcon: some View {
-        let t = Double(deployingPulse) * 0.22
-        // Remplissage bas → haut bien lisible (évite un « pulse » trop subtil).
-        let deployFill = CGFloat((sin(t) + 1) / 2) * 0.9 + 0.1
-        let accent = NSColor.controlAccentColor
-        let pale = accent.withAlphaComponent(0.45)
+        let deployFill = CGFloat(deployingPulse % Self.deployFillCycleTicks) / CGFloat(Self.deployFillCycleTicks)
+        // Piste toujours clairement bleue (l’accent système est souvent neutre / gris en barre de menus).
+        let trackBlue = NSColor(srgbRed: 0.42, green: 0.62, blue: 1, alpha: 1)
+        let fillBlue = NSColor.systemBlue
         return ZStack {
-            MenuBarPaletteSymbol.view(colors: [pale])
-            MenuBarPaletteSymbol.view(colors: [accent])
+            MenuBarPaletteSymbol.view(colors: [trackBlue])
+            MenuBarPaletteSymbol.view(colors: [fillBlue])
                 .mask(alignment: .bottom) {
                     GeometryReader { geo in
                         Rectangle()

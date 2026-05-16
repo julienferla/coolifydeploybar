@@ -5,6 +5,11 @@ struct DeploymentMenuView: View {
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var monitor: DeploymentMonitor
 
+    /// Lignes d’historique affichées sous la carte (hors mise en avant) : pagination locale pour alléger le scroll.
+    @State private var timelineDisplayRowLimit = 5
+
+    private static let timelineRowPageSize = 5
+
     /// Empreinte connexion pour relancer chargement / polling si URL ou token change.
     private var connectionFingerprint: String {
         settings.baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -46,6 +51,22 @@ struct DeploymentMenuView: View {
         return merged.filter { $0.deployment_uuid != h.deployment_uuid }
     }
 
+    private var visibleTimelineRows: [DeploymentQueueItem] {
+        Array(timelineWithoutHighlight.prefix(timelineDisplayRowLimit))
+    }
+
+    private var canLoadMoreTimelineLocally: Bool {
+        timelineDisplayRowLimit < timelineWithoutHighlight.count
+    }
+
+    private var canLoadMoreHistoryFromAPI: Bool {
+        monitor.deploymentHistoryTakePerApp < DeploymentMonitor.deploymentHistoryTakeMax
+    }
+
+    private var showLoadMoreButton: Bool {
+        canLoadMoreTimelineLocally || (!canLoadMoreTimelineLocally && canLoadMoreHistoryFromAPI)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
@@ -75,15 +96,40 @@ struct DeploymentMenuView: View {
                     }
                     // Indices : si l’API renvoie plusieurs lignes avec le même `deployment_uuid`, `id: \.element.id`
                     // casse le rendu SwiftUI (liste vide / incohérente).
-                    ForEach(Array(timelineWithoutHighlight.indices), id: \.self) { index in
-                        let item = timelineWithoutHighlight[index]
-                        deploymentTimelineRow(item)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                        if index < timelineWithoutHighlight.count - 1 {
+                    ForEach(Array(visibleTimelineRows.enumerated()), id: \.element.id) { index, item in
+                        if index > 0 {
                             Divider()
                                 .padding(.leading, 10)
                         }
+                        deploymentTimelineRow(item)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                    }
+                    if showLoadMoreButton {
+                        Button {
+                            Task { @MainActor in
+                                if canLoadMoreTimelineLocally {
+                                    timelineDisplayRowLimit = min(
+                                        timelineDisplayRowLimit + Self.timelineRowPageSize,
+                                        timelineWithoutHighlight.count
+                                    )
+                                } else if canLoadMoreHistoryFromAPI {
+                                    await monitor.loadMoreHistoryFromAPI(settings: settings)
+                                    timelineDisplayRowLimit = min(
+                                        timelineDisplayRowLimit + Self.timelineRowPageSize,
+                                        timelineWithoutHighlight.count
+                                    )
+                                }
+                            }
+                        } label: {
+                            Text("Charger plus")
+                                .font(.caption.weight(.semibold))
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 8)
                     }
                 }
             }
@@ -123,6 +169,7 @@ struct DeploymentMenuView: View {
         }
         .frame(minWidth: 340)
         .task(id: connectionFingerprint) {
+            timelineDisplayRowLimit = Self.timelineRowPageSize
             guard settings.isConfigured else {
                 monitor.stopPolling()
                 return

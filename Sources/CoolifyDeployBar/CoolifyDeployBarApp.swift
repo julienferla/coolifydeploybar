@@ -12,7 +12,7 @@ struct CoolifyDeployBarApp: App {
                 .environmentObject(settings)
                 .environmentObject(monitor)
         } label: {
-            MenuBarLabelView(settings: settings, monitor: monitor)
+            MenuBarLabelView(settings: settings, monitor: monitor, pulseDriver: monitor.menuBarPulseDriver)
         }
         .menuBarExtraStyle(.window)
     }
